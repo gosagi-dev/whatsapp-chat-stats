@@ -68,6 +68,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
 h3{font-size:1rem;margin:14px 0 4px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .card svg{display:block;width:100%;height:auto}
+.legend{display:flex;align-items:center;gap:4px;margin-top:10px;font-size:.8rem;color:var(--mute)}
+.legend i{width:22px;height:12px;border-radius:3px;background:var(--bar)}
 .words{display:flex;flex-wrap:wrap;gap:6px}
 .words span{background:var(--bar-bg);border-radius:14px;padding:3px 10px;font-size:.85rem}
 .words small{color:var(--mute)}
@@ -188,7 +190,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"Press and hold the image, then choose Save or Add to Photos.",close:"Close",pdf:"Export PDF",pdfNote:"PDF created. If no download started, this view blocks downloads. Use Export as image instead.",share:"Share image",shareFail:"Sharing is not available in this view. Press and hold the image to save it, then share it from Photos.",imgAlt:"Who Talks Most report",
       rTotals:"Total messages: {n} | Participants: {u}",rStarts:"Who starts conversations (silence of {h} hours): {n} conversations",
       iTotals:"{n} messages · {u} participants",iStarts:"Who starts conversations? ({n})",
-      periodLbl:"Period",pAll:"All time",p30:"Last 30 days",p90:"Last 3 months",p365:"Last 12 months",actTitle:"Activity by month",actNote:"Top participants. Darker means more messages that month.",moreTitle:"More stats",hoursTitle:"Busiest hours of the day",peakHour:"Most active hour: {h}:00",replyTitle:"Fastest to reply",replyNote:"Typical time to answer someone else's message, within 1 hour. Needs at least 10 replies.",mediaTitle:"Most photos and files",wordsTitle:"Most used words",noData:"Not enough data",tSec:"sec",tMin:"min"},
+      periodLbl:"Period",pAll:"All time",p30:"Last 30 days",p90:"Last 3 months",p365:"Last 12 months",actTitle:"Activity by month",actNote:"Each row is a person and each column is a month. A brighter square means more messages from that person that month. The bars on top show all messages that month.",legFew:"Few",legMany:"Many",moreTitle:"More stats",hoursTitle:"Busiest hours of the day",peakHour:"Most active hour: {h}:00",replyTitle:"Fastest to reply",replyNote:"Typical time to answer someone else's message, within 1 hour. Needs at least 10 replies.",mediaTitle:"Most photos and files",wordsTitle:"Most used words",noData:"Not enough data",tSec:"sec",tMin:"min"},
     he:{h1:"מי חופר?",intro:"העלו את קובץ ייצוא השיחה (txt או zip) וקבלו כמה הודעות שלח כל משתתף. הקובץ נקרא בטלפון בלבד ולא נשלח לשום מקום.",
       pick:"בחירת קובץ שיחה",pickHint:"בוואטסאפ: פתחו קבוצה ← שם הקבוצה ← ייצוא צ'אט ← ללא מדיה",
       msgs:"הודעות",users:"משתתפים",avg:"ממוצע למשתתף",range:"טווח תאריכים בקובץ: {a} עד {b}",
@@ -203,7 +205,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"לחצו והחזיקו על התמונה ובחרו \"שמירה\" או \"הוספה לתמונות\".",close:"סגירה",pdf:"ייצוא PDF",pdfNote:"הקובץ נוצר. אם ההורדה לא התחילה, המסך הזה חוסם הורדות. השתמשו ב\"ייצוא כתמונה\".",share:"שיתוף תמונה",shareFail:"השיתוף לא זמין במסך הזה. לחצו והחזיקו על התמונה כדי לשמור אותה, ואז שתפו מהתמונות.",imgAlt:"דוח מי חופר",
       rTotals:"סה״כ הודעות: {n} | משתתפים: {u}",rStarts:"מי מתחיל שיחות (שקט של {h} שעות): {n} שיחות",
       iTotals:"{n} הודעות · {u} משתתפים",iStarts:"מי מתחיל שיחות? ({n})",
-      periodLbl:"תקופה",pAll:"כל הזמן",p30:"30 הימים האחרונים",p90:"3 החודשים האחרונים",p365:"12 החודשים האחרונים",actTitle:"פעילות לפי חודש",actNote:"המשתתפים המובילים. צבע כהה יותר = יותר הודעות באותו חודש.",moreTitle:"עוד סטטיסטיקות",hoursTitle:"השעות העמוסות ביום",peakHour:"השעה הפעילה ביותר: {h}:00",replyTitle:"מי עונה הכי מהר",replyNote:"זמן טיפוסי למענה להודעה של מישהו אחר, עד שעה. נדרשות לפחות 10 תשובות.",mediaTitle:"הכי הרבה תמונות וקבצים",wordsTitle:"המילים הנפוצות",noData:"אין מספיק נתונים",tSec:"שנ׳",tMin:"דק׳"},
+      periodLbl:"תקופה",pAll:"כל הזמן",p30:"30 הימים האחרונים",p90:"3 החודשים האחרונים",p365:"12 החודשים האחרונים",actTitle:"פעילות לפי חודש",actNote:"כל שורה היא משתתף וכל עמודה היא חודש. ריבוע בהיר יותר = יותר הודעות של אותו משתתף באותו חודש. העמודות למעלה מראות את כל ההודעות באותו חודש.",legFew:"מעט",legMany:"הרבה",moreTitle:"עוד סטטיסטיקות",hoursTitle:"השעות העמוסות ביום",peakHour:"השעה הפעילה ביותר: {h}:00",replyTitle:"מי עונה הכי מהר",replyNote:"זמן טיפוסי למענה להודעה של מישהו אחר, עד שעה. נדרשות לפחות 10 תשובות.",mediaTitle:"הכי הרבה תמונות וקבצים",wordsTitle:"המילים הנפוצות",noData:"אין מספיק נתונים",tSec:"שנ׳",tMin:"דק׳"},
     es:{h1:"¿Quién habla más?",intro:"Sube una exportación de chat de WhatsApp (txt o zip) para ver cuántos mensajes envió cada persona. El archivo se lee solo en tu teléfono y no se sube a ningún sitio.",
       pick:"Elegir archivo del chat",pickHint:"En WhatsApp: abre un grupo → nombre del grupo → Exportar chat → Sin archivos",
       msgs:"Mensajes",users:"Participantes",avg:"Media por persona",range:"Rango de fechas del archivo: {a} a {b}",
@@ -218,7 +220,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"Mantén pulsada la imagen y elige Guardar o Añadir a Fotos.",close:"Cerrar",pdf:"Exportar PDF",pdfNote:"PDF creado. Si no empezó la descarga, esta vista bloquea las descargas. Usa Exportar como imagen.",share:"Compartir imagen",shareFail:"Compartir no está disponible en esta vista. Mantén pulsada la imagen para guardarla y compártela desde Fotos.",imgAlt:"Informe ¿Quién habla más?",
       rTotals:"Mensajes en total: {n} | Participantes: {u}",rStarts:"Quién inicia conversaciones (silencio de {h} horas): {n} conversaciones",
       iTotals:"{n} mensajes · {u} participantes",iStarts:"¿Quién inicia conversaciones? ({n})",
-      periodLbl:"Periodo",pAll:"Todo el tiempo",p30:"Últimos 30 días",p90:"Últimos 3 meses",p365:"Últimos 12 meses",actTitle:"Actividad por mes",actNote:"Principales participantes. Más oscuro = más mensajes ese mes.",moreTitle:"Más estadísticas",hoursTitle:"Horas más activas del día",peakHour:"Hora más activa: {h}:00",replyTitle:"Quién responde más rápido",replyNote:"Tiempo habitual para responder al mensaje de otra persona, dentro de 1 hora. Requiere al menos 10 respuestas.",mediaTitle:"Más fotos y archivos",wordsTitle:"Palabras más usadas",noData:"No hay datos suficientes",tSec:"s",tMin:"min"},
+      periodLbl:"Periodo",pAll:"Todo el tiempo",p30:"Últimos 30 días",p90:"Últimos 3 meses",p365:"Últimos 12 meses",actTitle:"Actividad por mes",actNote:"Cada fila es una persona y cada columna un mes. Un cuadro más claro significa más mensajes de esa persona ese mes. Las barras de arriba muestran todos los mensajes del mes.",legFew:"Pocos",legMany:"Muchos",moreTitle:"Más estadísticas",hoursTitle:"Horas más activas del día",peakHour:"Hora más activa: {h}:00",replyTitle:"Quién responde más rápido",replyNote:"Tiempo habitual para responder al mensaje de otra persona, dentro de 1 hora. Requiere al menos 10 respuestas.",mediaTitle:"Más fotos y archivos",wordsTitle:"Palabras más usadas",noData:"No hay datos suficientes",tSec:"s",tMin:"min"},
     fr:{h1:"Qui parle le plus ?",intro:"Importez une exportation de discussion WhatsApp (txt ou zip) pour voir combien de messages chaque personne a envoyés. Le fichier est lu uniquement sur votre téléphone et n'est jamais envoyé.",
       pick:"Choisir le fichier de discussion",pickHint:"Dans WhatsApp : ouvrez un groupe → nom du groupe → Exporter la discussion → Sans médias",
       msgs:"Messages",users:"Participants",avg:"Moyenne par personne",range:"Période du fichier : du {a} au {b}",
@@ -233,7 +235,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"Appuyez longuement sur l'image puis choisissez Enregistrer ou Ajouter aux photos.",close:"Fermer",pdf:"Exporter en PDF",pdfNote:"PDF créé. Si le téléchargement n'a pas démarré, cette vue bloque les téléchargements. Utilisez Exporter en image.",share:"Partager l'image",shareFail:"Le partage n'est pas disponible dans cette vue. Appuyez longuement sur l'image pour l'enregistrer, puis partagez-la depuis Photos.",imgAlt:"Rapport Qui parle le plus ?",
       rTotals:"Total des messages : {n} | Participants : {u}",rStarts:"Qui lance les conversations (silence de {h} h) : {n} conversations",
       iTotals:"{n} messages · {u} participants",iStarts:"Qui lance les conversations ? ({n})",
-      periodLbl:"Période",pAll:"Depuis toujours",p30:"30 derniers jours",p90:"3 derniers mois",p365:"12 derniers mois",actTitle:"Activité par mois",actNote:"Principaux participants. Plus foncé = plus de messages ce mois-là.",moreTitle:"Plus de statistiques",hoursTitle:"Heures les plus actives",peakHour:"Heure la plus active : {h}h",replyTitle:"Qui répond le plus vite",replyNote:"Délai habituel pour répondre au message de quelqu'un d'autre, sous 1 heure. Au moins 10 réponses requises.",mediaTitle:"Plus de photos et fichiers",wordsTitle:"Mots les plus utilisés",noData:"Pas assez de données",tSec:"s",tMin:"min"},
+      periodLbl:"Période",pAll:"Depuis toujours",p30:"30 derniers jours",p90:"3 derniers mois",p365:"12 derniers mois",actTitle:"Activité par mois",actNote:"Chaque ligne est une personne et chaque colonne un mois. Un carré plus clair signifie plus de messages de cette personne ce mois-là. Les barres du haut montrent tous les messages du mois.",legFew:"Peu",legMany:"Beaucoup",moreTitle:"Plus de statistiques",hoursTitle:"Heures les plus actives",peakHour:"Heure la plus active : {h}h",replyTitle:"Qui répond le plus vite",replyNote:"Délai habituel pour répondre au message de quelqu'un d'autre, sous 1 heure. Au moins 10 réponses requises.",mediaTitle:"Plus de photos et fichiers",wordsTitle:"Mots les plus utilisés",noData:"Pas assez de données",tSec:"s",tMin:"min"},
     ru:{h1:"Кто пишет больше всех?",intro:"Загрузите экспорт чата WhatsApp (txt или zip), чтобы увидеть, сколько сообщений отправил каждый участник. Файл читается только на вашем телефоне и никуда не отправляется.",
       pick:"Выбрать файл чата",pickHint:"В WhatsApp: откройте группу → название группы → Экспорт чата → Без медиа",
       msgs:"Сообщений",users:"Участников",avg:"В среднем на человека",range:"Период в файле: с {a} по {b}",
@@ -248,7 +250,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"Нажмите на картинку и удерживайте, затем выберите «Сохранить» или «Добавить в Фото».",close:"Закрыть",pdf:"Экспорт в PDF",pdfNote:"PDF создан. Если загрузка не началась, в этом режиме загрузки заблокированы. Используйте экспорт в картинку.",share:"Поделиться картинкой",shareFail:"Отправка недоступна в этом режиме. Нажмите на картинку и удерживайте, чтобы сохранить, затем поделитесь из Фото.",imgAlt:"Отчёт «Кто пишет больше всех?»",
       rTotals:"Всего сообщений: {n} | Участников: {u}",rStarts:"Кто начинает разговоры (пауза {h} ч): {n} разговоров",
       iTotals:"{n} сообщений · {u} участников",iStarts:"Кто начинает разговоры? ({n})",
-      periodLbl:"Период",pAll:"За всё время",p30:"Последние 30 дней",p90:"Последние 3 месяца",p365:"Последние 12 месяцев",actTitle:"Активность по месяцам",actNote:"Главные участники. Темнее — больше сообщений в этом месяце.",moreTitle:"Ещё статистика",hoursTitle:"Самые активные часы",peakHour:"Самый активный час: {h}:00",replyTitle:"Кто отвечает быстрее всех",replyNote:"Обычное время ответа на чужое сообщение, в пределах часа. Нужно не менее 10 ответов.",mediaTitle:"Больше всего фото и файлов",wordsTitle:"Самые частые слова",noData:"Недостаточно данных",tSec:"с",tMin:"мин"},
+      periodLbl:"Период",pAll:"За всё время",p30:"Последние 30 дней",p90:"Последние 3 месяца",p365:"Последние 12 месяцев",actTitle:"Активность по месяцам",actNote:"Каждая строка — участник, каждый столбец — месяц. Чем светлее квадрат, тем больше сообщений от этого участника в этом месяце. Столбики сверху — все сообщения за месяц.",legFew:"Мало",legMany:"Много",moreTitle:"Ещё статистика",hoursTitle:"Самые активные часы",peakHour:"Самый активный час: {h}:00",replyTitle:"Кто отвечает быстрее всех",replyNote:"Обычное время ответа на чужое сообщение, в пределах часа. Нужно не менее 10 ответов.",mediaTitle:"Больше всего фото и файлов",wordsTitle:"Самые частые слова",noData:"Недостаточно данных",tSec:"с",tMin:"мин"},
     ar:{h1:"من يتكلم أكثر؟",intro:"ارفع ملف تصدير محادثة واتساب (txt أو zip) لترى كم رسالة أرسل كل شخص. يُقرأ الملف على هاتفك فقط ولا يُرسل إلى أي مكان.",
       pick:"اختيار ملف المحادثة",pickHint:"في واتساب: افتح مجموعة ← اسم المجموعة ← تصدير الدردشة ← بدون وسائط",
       msgs:"رسائل",users:"مشاركون",avg:"المتوسط لكل شخص",range:"الفترة في الملف: من {a} إلى {b}",
@@ -263,7 +265,7 @@ h3{font-size:1rem;margin:14px 0 4px}
       imgHelp:"اضغط مطولًا على الصورة ثم اختر حفظ أو إضافة إلى الصور.",close:"إغلاق",pdf:"تصدير PDF",pdfNote:"تم إنشاء PDF. إذا لم يبدأ التنزيل فهذا العرض يمنع التنزيلات. استخدم تصدير كصورة.",share:"مشاركة الصورة",shareFail:"المشاركة غير متاحة في هذا العرض. اضغط مطولًا على الصورة لحفظها ثم شاركها من الصور.",imgAlt:"تقرير من يتكلم أكثر؟",
       rTotals:"إجمالي الرسائل: {n} | المشاركون: {u}",rStarts:"من يبدأ المحادثات (صمت {h} ساعات): {n} محادثات",
       iTotals:"{n} رسالة · {u} مشاركين",iStarts:"من يبدأ المحادثات؟ ({n})",
-      periodLbl:"الفترة",pAll:"كل الوقت",p30:"آخر 30 يومًا",p90:"آخر 3 أشهر",p365:"آخر 12 شهرًا",actTitle:"النشاط حسب الشهر",actNote:"أبرز المشاركين. اللون الأغمق = رسائل أكثر في ذلك الشهر.",moreTitle:"المزيد من الإحصاءات",hoursTitle:"أكثر ساعات اليوم نشاطًا",peakHour:"الساعة الأكثر نشاطًا: {h}:00",replyTitle:"من يرد أسرع",replyNote:"الوقت المعتاد للرد على رسالة شخص آخر، خلال ساعة. يلزم 10 ردود على الأقل.",mediaTitle:"أكثر الصور والملفات",wordsTitle:"الكلمات الأكثر استخدامًا",noData:"لا توجد بيانات كافية",tSec:"ث",tMin:"د"}
+      periodLbl:"الفترة",pAll:"كل الوقت",p30:"آخر 30 يومًا",p90:"آخر 3 أشهر",p365:"آخر 12 شهرًا",actTitle:"النشاط حسب الشهر",actNote:"كل صف شخص وكل عمود شهر. المربع الأفتح يعني رسائل أكثر من هذا الشخص في ذلك الشهر. الأعمدة في الأعلى تُظهر كل رسائل الشهر.",legFew:"قليل",legMany:"كثير",moreTitle:"المزيد من الإحصاءات",hoursTitle:"أكثر ساعات اليوم نشاطًا",peakHour:"الساعة الأكثر نشاطًا: {h}:00",replyTitle:"من يرد أسرع",replyNote:"الوقت المعتاد للرد على رسالة شخص آخر، خلال ساعة. يلزم 10 ردود على الأقل.",mediaTitle:"أكثر الصور والملفات",wordsTitle:"الكلمات الأكثر استخدامًا",noData:"لا توجد بيانات كافية",tSec:"ث",tMin:"د"}
   };
   var RTL = {he:true, ar:true};
   var LOCALE = {en:"en-US", he:"he-IL", es:"es-ES", fr:"fr-FR", ru:"ru-RU", ar:"ar-u-nu-latn"};
@@ -479,6 +481,7 @@ h3{font-size:1rem;margin:14px 0 4px}
     return m + " " + t("tMin") + (m < 10 && r ? " " + r + " " + t("tSec") : "");
   }
 
+  var LEVELS = [0.22, 0.4, 0.6, 0.8, 1];
   function renderActivity(){
     var box = $("actBox"); box.textContent = "";
     var V = getV();
@@ -508,16 +511,21 @@ h3{font-size:1rem;margin:14px 0 4px}
       if(i % step === 0 && lab+i*cw+cw/2 < W-18) svg.appendChild(svgEl("text", {x:lab+i*cw+cw/2, y:topH+14, "text-anchor":"middle", "font-size":11, style:"fill:var(--mute)"}, monthLabel(lo+i)));
     }
     names.forEach(function(n, r){
-      var y = y0 + r*(rh+2), arr = per[n], mx = Math.max.apply(null, arr);
+      var y = y0 + r*(rh+2), arr = per[n], mx = Math.max.apply(null, arr), mn = Math.min.apply(null, arr);
       var nm = n.length > 16 ? n.slice(0,15)+"…" : n;
       svg.appendChild(svgEl("text", {x:lab-8, y:y+rh/2+4, "text-anchor":"end", "font-size":12, style:"fill:var(--fg)"}, nm));
       for(var j=0;j<M;j++){
-        var v = arr[j], c = svgEl("rect", {x:lab+j*cw, y:y, width:Math.max(1,cw-1), height:rh, rx:2, style: v ? "fill:var(--bar);fill-opacity:"+(0.12+0.88*v/mx).toFixed(2) : "fill:var(--bar-bg)"});
+        var v = arr[j], c = svgEl("rect", {x:lab+j*cw, y:y, width:Math.max(1,cw-1), height:rh, rx:2, style: v ? "fill:var(--bar);fill-opacity:"+LEVELS[Math.min(4, Math.floor((v-mn)/((mx-mn)||1)*5))] : "fill:var(--bar-bg)"});
         c.appendChild(svgEl("title", {}, n + " · " + monthLabel(lo+j) + ": " + fmt(v)));
         svg.appendChild(c);
       }
     });
     box.appendChild(svg);
+    var lg = document.createElement("div"); lg.className = "legend";
+    var a = document.createElement("span"); a.textContent = t("legFew"); lg.appendChild(a);
+    LEVELS.forEach(function(o){ var sw = document.createElement("i"); sw.style.opacity = o; lg.appendChild(sw); });
+    var b = document.createElement("span"); b.textContent = t("legMany"); lg.appendChild(b);
+    box.appendChild(lg);
   }
 
   var STOP = {};

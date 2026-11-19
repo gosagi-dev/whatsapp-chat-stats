@@ -482,13 +482,16 @@ h3{font-size:1rem;margin:14px 0 4px}
   }
 
   var LEVELS = [0.22, 0.4, 0.6, 0.8, 1];
-  function renderActivity(){
-    var box = $("actBox"); box.textContent = "";
+  function levelOf(v, arr){
+    var mx = Math.max.apply(null, arr), mn = Math.min.apply(null, arr);
+    return LEVELS[Math.min(4, Math.floor((v-mn)/((mx-mn)||1)*5))];
+  }
+  function activityData(){
     var V = getV();
-    if(!V.length){ box.textContent = t("noData"); return; }
-    var lo = Infinity, hi = -Infinity;
+    if(!V.length) return null;
+    var lo = Infinity, hi = -Infinity, i;
     V.forEach(function(x){ if(x.mo < lo) lo = x.mo; if(x.mo > hi) hi = x.mo; });
-    var M = hi - lo + 1, per = {}, sum = {}, tot = [], i;
+    var M = hi - lo + 1, per = {}, sum = {}, tot = [];
     for(i=0;i<M;i++) tot.push(0);
     V.forEach(function(x){
       var k = disp(x.name), j = x.mo - lo;
@@ -496,9 +499,17 @@ h3{font-size:1rem;margin:14px 0 4px}
       per[k][j]++; sum[k]++; tot[j]++;
     });
     var names = Object.keys(sum).sort(function(a,b){return sum[b]-sum[a]}).slice(0,8);
+    return {lo:lo, M:M, tot:tot, per:per, names:names};
+  }
+
+  function renderActivity(){
+    var box = $("actBox"); box.textContent = "";
+    var A = activityData();
+    if(!A){ box.textContent = t("noData"); return; }
+    var M = A.M, lo = A.lo, tot = A.tot, per = A.per, names = A.names, i;
     var W = 600, lab = 120, cw = Math.min(40, (W-lab-4)/M), rh = 20, topH = 56, y0 = topH + 24;
     var H = y0 + names.length*(rh+2) + 4;
-    var svg = svgEl("svg", {viewBox:"0 0 "+W+" "+H, role:"img", direction:"ltr"});
+    var svg = svgEl("svg", {viewBox:"0 0 "+W+" "+H, role:"img"});
     svg.style.direction = "ltr";
     var maxTot = Math.max.apply(null, tot);
     svg.appendChild(svgEl("text", {x:lab-8, y:topH-2, "text-anchor":"end", "font-size":12, style:"fill:var(--mute)"}, t("msgs")));
@@ -511,11 +522,11 @@ h3{font-size:1rem;margin:14px 0 4px}
       if(i % step === 0 && lab+i*cw+cw/2 < W-18) svg.appendChild(svgEl("text", {x:lab+i*cw+cw/2, y:topH+14, "text-anchor":"middle", "font-size":11, style:"fill:var(--mute)"}, monthLabel(lo+i)));
     }
     names.forEach(function(n, r){
-      var y = y0 + r*(rh+2), arr = per[n], mx = Math.max.apply(null, arr), mn = Math.min.apply(null, arr);
+      var y = y0 + r*(rh+2), arr = per[n];
       var nm = n.length > 16 ? n.slice(0,15)+"…" : n;
       svg.appendChild(svgEl("text", {x:lab-8, y:y+rh/2+4, "text-anchor":"end", "font-size":12, style:"fill:var(--fg)"}, nm));
       for(var j=0;j<M;j++){
-        var v = arr[j], c = svgEl("rect", {x:lab+j*cw, y:y, width:Math.max(1,cw-1), height:rh, rx:2, style: v ? "fill:var(--bar);fill-opacity:"+LEVELS[Math.min(4, Math.floor((v-mn)/((mx-mn)||1)*5))] : "fill:var(--bar-bg)"});
+        var v = arr[j], c = svgEl("rect", {x:lab+j*cw, y:y, width:Math.max(1,cw-1), height:rh, rx:2, style: v ? "fill:var(--bar);fill-opacity:"+levelOf(v, arr) : "fill:var(--bar-bg)"});
         c.appendChild(svgEl("title", {}, n + " · " + monthLabel(lo+j) + ": " + fmt(v)));
         svg.appendChild(c);
       }
@@ -534,27 +545,13 @@ h3{font-size:1rem;margin:14px 0 4px}
    "que los las por con una para del como pero más sus les des pas pour est une dans qui sur что это как так для его все они был").split(" ").forEach(function(w){ STOP[w] = 1; });
   var WORD; try{ WORD = new RegExp("[\\p{L}\\p{N}_']+", "gu"); }catch(_){ WORD = /[A-Za-z֐-׿0-9_']+/g; }
 
-  function renderExtra(){
-    var V = getV(), i;
-    // hours
-    var hb = $("hoursBox"); hb.textContent = "";
-    if(!V.length){ hb.textContent = t("noData"); $("peak").textContent = ""; }
-    else {
+  function extraData(){
+    var V = getV(), i, out = {hours:null, peak:0, med:[], media:[], words:[]};
+    if(V.length){
       var c = []; for(i=0;i<24;i++) c.push(0);
       V.forEach(function(x){ c[x.h]++; });
-      var mx = Math.max.apply(null, c), peak = c.indexOf(mx), bw = 600/24;
-      var svg = svgEl("svg", {viewBox:"0 0 600 104", role:"img"}); svg.style.direction = "ltr";
-      for(i=0;i<24;i++){
-        var h = Math.max(1, c[i]/mx*72);
-        var r = svgEl("rect", {x:i*bw+2, y:76-h, width:bw-4, height:h, rx:2, style:"fill:var(--bar);fill-opacity:"+(i===peak?1:0.5)});
-        r.appendChild(svgEl("title", {}, i + ":00 · " + fmt(c[i])));
-        svg.appendChild(r);
-        if(i % 3 === 0) svg.appendChild(svgEl("text", {x:i*bw+bw/2, y:96, "text-anchor":"middle", "font-size":12, style:"fill:var(--mute)"}, String(i)));
-      }
-      hb.appendChild(svg);
-      $("peak").textContent = t("peakHour", {h:peak});
+      out.hours = c; out.peak = c.indexOf(Math.max.apply(null, c));
     }
-    // reply time
     var prev = null, rep = {};
     V.forEach(function(x){
       if(prev){
@@ -563,19 +560,10 @@ h3{font-size:1rem;margin:14px 0 4px}
       }
       prev = x;
     });
-    var med = Object.keys(rep).filter(function(k){return rep[k].length >= 10}).map(function(k){
+    out.med = Object.keys(rep).filter(function(k){return rep[k].length >= 10}).map(function(k){
       var a = rep[k].sort(function(p,q){return p-q}); return {name:k, v:a[Math.floor(a.length/2)]};
     }).sort(function(p,q){return p.v-q.v}).slice(0,8);
-    var rl = $("replyList"); rl.textContent = "";
-    if(!med.length){ var li0 = document.createElement("li"); li0.textContent = t("noData"); rl.appendChild(li0); }
-    med.forEach(function(u,j){ drawSimple(rl, j+1, u.name, fmtDur(u.v), null); });
-    // media
-    var ml = $("mediaList"); ml.textContent = "";
-    var mr = rows().list.filter(function(u){return u.media > 0}).sort(function(p,q){return q.media-p.media}).slice(0,8);
-    if(!mr.length){ var li1 = document.createElement("li"); li1.textContent = t("noData"); ml.appendChild(li1); }
-    mr.forEach(function(u,j){ drawSimple(ml, j+1, u.name, fmt(u.media), u.media/mr[0].media); });
-    // words
-    var wb = $("wordsBox"); wb.textContent = "";
+    out.media = rows().list.filter(function(u){return u.media > 0}).sort(function(p,q){return q.media-p.media}).slice(0,8);
     var key = visKey();
     if(!(wordCache.data === data && wordCache.key === key)){
       var cnt = Object.create(null);
@@ -590,8 +578,36 @@ h3{font-size:1rem;margin:14px 0 4px}
       var arr = Object.keys(cnt).map(function(k){return {w:k, n:cnt[k]}}).sort(function(p,q){return q.n-p.n}).slice(0,24);
       wordCache = {data:data, key:key, v:arr};
     }
-    if(!wordCache.v.length) wb.textContent = t("noData");
-    wordCache.v.forEach(function(o){
+    out.words = wordCache.v;
+    return out;
+  }
+
+  function renderExtra(){
+    var E = extraData(), i;
+    var hb = $("hoursBox"); hb.textContent = "";
+    if(!E.hours){ hb.textContent = t("noData"); $("peak").textContent = ""; }
+    else {
+      var c = E.hours, mx = Math.max.apply(null, c), bw = 600/24;
+      var svg = svgEl("svg", {viewBox:"0 0 600 104", role:"img"}); svg.style.direction = "ltr";
+      for(i=0;i<24;i++){
+        var h = Math.max(1, c[i]/mx*72);
+        var r = svgEl("rect", {x:i*bw+2, y:76-h, width:bw-4, height:h, rx:2, style:"fill:var(--bar);fill-opacity:"+(i===E.peak?1:0.5)});
+        r.appendChild(svgEl("title", {}, i + ":00 · " + fmt(c[i])));
+        svg.appendChild(r);
+        if(i % 3 === 0) svg.appendChild(svgEl("text", {x:i*bw+bw/2, y:96, "text-anchor":"middle", "font-size":12, style:"fill:var(--mute)"}, String(i)));
+      }
+      hb.appendChild(svg);
+      $("peak").textContent = t("peakHour", {h:E.peak});
+    }
+    var rl = $("replyList"); rl.textContent = "";
+    if(!E.med.length){ var li0 = document.createElement("li"); li0.textContent = t("noData"); rl.appendChild(li0); }
+    E.med.forEach(function(u,j){ drawSimple(rl, j+1, u.name, fmtDur(u.v), null); });
+    var ml = $("mediaList"); ml.textContent = "";
+    if(!E.media.length){ var li1 = document.createElement("li"); li1.textContent = t("noData"); ml.appendChild(li1); }
+    E.media.forEach(function(u,j){ drawSimple(ml, j+1, u.name, fmt(u.media), u.media/E.media[0].media); });
+    var wb = $("wordsBox"); wb.textContent = "";
+    if(!E.words.length) wb.textContent = t("noData");
+    E.words.forEach(function(o){
       var sp = document.createElement("span"); sp.dir = "auto";
       sp.appendChild(document.createTextNode(o.w + " "));
       var sm = document.createElement("small"); sm.textContent = fmt(o.n); sp.appendChild(sm);
@@ -649,34 +665,129 @@ h3{font-size:1rem;margin:14px 0 4px}
   }
 
   function makeImage(){
-    var r = rows(), s = starters(), rtl = !!RTL[lang];
+    var r = rows(), s = starters(), A = activityData(), E = extraData(), rtl = !!RTL[lang];
     var W = 1080, pad = 48, padTop = 90, rowH = 92, head = 160, secH = 100;
-    var H = padTop + head + r.list.length*rowH + secH + s.list.length*rowH + pad;
-    var c = document.createElement("canvas"); c.width = W; c.height = H;
-    var x = c.getContext("2d"), font = 'system-ui,-apple-system,"Segoe UI",Arial,sans-serif';
-    var S = rtl ? W-pad : pad, E = rtl ? pad : W-pad;
-    x.direction = rtl ? "rtl" : "ltr"; x.textBaseline = "middle";
-    x.fillStyle = "#ffffff"; x.fillRect(0,0,W,H);
-    var y = padTop;
-    x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "bold 58px "+font; x.fillText(t("h1"), S, y+40);
-    x.font = "30px "+font; x.fillStyle = "#5d6d67"; x.fillText(t("iTotals",{n:r.total,u:r.list.length}) + periodSuffix(), S, y+100);
-    y += head;
-    function block(list, total){
-      var max = list.length ? list[0].n : 1;
-      list.forEach(function(u){
-        var nm = u.name.length > 20 ? u.name.slice(0,19)+"…" : u.name;
-        x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "34px "+font; x.fillText(nm, S, y+22);
-        x.textAlign = rtl ? "left" : "right"; x.font = "bold 34px "+font; x.fillText(u.n+" · "+pct(u.n,total).toFixed(1)+"%", E, y+22);
-        x.fillStyle = "#e3ece8"; x.fillRect(pad, y+54, W-2*pad, 14);
-        var w = Math.max(4, (u.n/max)*(W-2*pad));
-        x.fillStyle = "#0b7a62"; x.fillRect(rtl ? W-pad-w : pad, y+54, w, 14);
-        y += rowH;
+    var font = 'system-ui,-apple-system,"Segoe UI",Arial,sans-serif';
+    var INK = "#14201c", MUTE = "#5d6d67", BAR = "#0b7a62", BG = "#e3ece8";
+    var S = rtl ? W-pad : pad, E_ = rtl ? pad : W-pad;
+    var meas = document.createElement("canvas").getContext("2d");
+    meas.font = "28px " + font;
+    var chips = [], line = [], lw = 0, maxW = W - 2*pad, chipGap = 12;
+    E.words.forEach(function(o){
+      var txt = o.w + "  " + o.n, w = Math.ceil(meas.measureText(txt).width) + 36;
+      if(line.length && lw + chipGap + w > maxW){ chips.push(line); line = []; lw = 0; }
+      line.push({txt:txt, w:w}); lw += (line.length > 1 ? chipGap : 0) + w;
+    });
+    if(line.length) chips.push(line);
+
+    function paint(x){
+      var y = padTop;
+      x.direction = rtl ? "rtl" : "ltr"; x.textBaseline = "middle";
+      x.fillStyle = "#ffffff"; x.fillRect(0,0,W,40000);
+      function al(isStart){ x.textAlign = (isStart !== rtl) ? "left" : "right"; }
+      function h2(txt){ al(true); x.fillStyle = INK; x.font = "bold 44px "+font; x.fillText(txt, S, y+50); y += secH; }
+      function h3(txt){ al(true); x.fillStyle = INK; x.font = "bold 34px "+font; x.fillText(txt, S, y+30); y += 70; }
+      function note(txt){ al(true); x.fillStyle = MUTE; x.font = "28px "+font; x.fillText(txt, S, y+22); y += 56; }
+      function pair(nm, val, yy, bold){
+        nm = nm.length > 20 ? nm.slice(0,19)+"…" : nm;
+        al(true); x.fillStyle = INK; x.font = "34px "+font; x.fillText(nm, S, yy+22);
+        al(false); x.font = "bold 34px "+font; x.fillText(val, E_, yy+22);
+      }
+      function bar(frac, yy){
+        x.fillStyle = BG; x.fillRect(pad, yy+54, W-2*pad, 14);
+        var w = Math.max(4, frac*(W-2*pad));
+        x.fillStyle = BAR; x.fillRect(rtl ? W-pad-w : pad, yy+54, w, 14);
+      }
+      function block(list, total){
+        var max = list.length ? list[0].n : 1;
+        list.forEach(function(u){ pair(u.name, u.n+" · "+pct(u.n,total).toFixed(1)+"%", y); bar(u.n/max, y); y += rowH; });
+      }
+      al(true); x.fillStyle = INK; x.font = "bold 58px "+font; x.fillText(t("h1"), S, y+40);
+      x.font = "30px "+font; x.fillStyle = MUTE; x.fillText(t("iTotals",{n:r.total,u:r.list.length}) + periodSuffix(), S, y+100);
+      y += head;
+      block(r.list, r.total);
+      h2(t("iStarts",{n:s.total}));
+      block(s.list, s.total);
+
+      h2(t("actTitle"));
+      if(!A){ note(t("noData")); }
+      else {
+        var lab = 210, x0 = pad + lab, chartW = W - pad - x0, cw = Math.min(60, chartW/A.M), topH = 120, hRow = 34, i;
+        var maxTot = Math.max.apply(null, A.tot);
+        x.direction = "ltr";
+        x.textAlign = "right"; x.fillStyle = MUTE; x.font = "22px "+font; x.fillText(t("msgs"), x0-12, y+topH-12);
+        x.fillStyle = BAR;
+        for(i=0;i<A.M;i++){ var bh = Math.max(2, A.tot[i]/maxTot*topH); x.fillRect(x0+i*cw, y+topH-bh, Math.max(1,cw-2), bh); }
+        var step = Math.max(1, Math.ceil(A.M / Math.max(1, Math.floor(chartW/110))));
+        x.textAlign = "center"; x.fillStyle = MUTE; x.font = "22px "+font;
+        for(i=0;i<A.M;i+=step) x.fillText(monthLabel(A.lo+i), x0+i*cw+cw/2, y+topH+24);
+        y += topH + 56;
+        A.names.forEach(function(n){
+          var arr = A.per[n], nm = n.length > 14 ? n.slice(0,13)+"…" : n;
+          x.textAlign = "right"; x.fillStyle = INK; x.font = "24px "+font; x.fillText(nm, x0-12, y+hRow/2);
+          for(var j=0;j<A.M;j++){
+            if(arr[j]){ x.globalAlpha = levelOf(arr[j], arr); x.fillStyle = BAR; } else { x.globalAlpha = 1; x.fillStyle = BG; }
+            x.fillRect(x0+j*cw, y, Math.max(1,cw-2), hRow);
+          }
+          x.globalAlpha = 1;
+          y += hRow + 4;
+        });
+        y += 18;
+        x.textAlign = "left"; x.fillStyle = MUTE; x.font = "24px "+font;
+        var fewW = x.measureText(t("legFew")).width, lx = pad;
+        x.fillText(t("legFew"), lx, y+14); lx += fewW + 14;
+        LEVELS.forEach(function(o){ x.globalAlpha = o; x.fillStyle = BAR; x.fillRect(lx, y+2, 44, 24); lx += 50; });
+        x.globalAlpha = 1; x.fillStyle = MUTE; x.fillText(t("legMany"), lx+6, y+14);
+        y += 60;
+        x.direction = rtl ? "rtl" : "ltr";
+      }
+
+      h2(t("moreTitle"));
+      h3(t("hoursTitle"));
+      if(!E.hours){ note(t("noData")); }
+      else {
+        var mx = Math.max.apply(null, E.hours), bw = (W-2*pad)/24, k;
+        x.direction = "ltr";
+        for(k=0;k<24;k++){
+          var hh = Math.max(2, E.hours[k]/mx*130);
+          x.globalAlpha = (k === E.peak) ? 1 : 0.5; x.fillStyle = BAR;
+          x.fillRect(pad+k*bw+3, y+130-hh, bw-6, hh);
+        }
+        x.globalAlpha = 1; x.textAlign = "center"; x.fillStyle = MUTE; x.font = "22px "+font;
+        for(k=0;k<24;k+=3) x.fillText(String(k), pad+k*bw+bw/2, y+130+20);
+        x.direction = rtl ? "rtl" : "ltr";
+        y += 170;
+        note(t("peakHour",{h:E.peak}));
+      }
+      h3(t("replyTitle"));
+      if(!E.med.length) note(t("noData"));
+      E.med.forEach(function(u, n){ pair((n+1)+". "+u.name, fmtDur(u.v), y-14); y += 56; });
+      y += 14;
+      h3(t("mediaTitle"));
+      if(!E.media.length) note(t("noData"));
+      E.media.forEach(function(u, n){ pair((n+1)+". "+u.name, fmt(u.media), y); bar(u.media/E.media[0].media, y); y += rowH; });
+      h3(t("wordsTitle"));
+      if(!chips.length) note(t("noData"));
+      x.font = "28px "+font; x.textAlign = "center";
+      chips.forEach(function(ln){
+        var cx = rtl ? W-pad : pad;
+        ln.forEach(function(c){
+          var left = rtl ? cx - c.w : cx;
+          x.fillStyle = BG; x.beginPath();
+          var rr = 24, h = 48, yy = y;
+          x.moveTo(left+rr, yy); x.arcTo(left+c.w, yy, left+c.w, yy+h, rr); x.arcTo(left+c.w, yy+h, left, yy+h, rr);
+          x.arcTo(left, yy+h, left, yy, rr); x.arcTo(left, yy, left+c.w, yy, rr); x.closePath(); x.fill();
+          x.fillStyle = INK; x.fillText(c.txt, left + c.w/2, yy+h/2+1);
+          cx += rtl ? -(c.w + chipGap) : (c.w + chipGap);
+        });
+        y += 60;
       });
+      return y + pad;
     }
-    block(r.list, r.total);
-    x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "bold 44px "+font; x.fillText(t("iStarts",{n:s.total}), S, y+50);
-    y += secH;
-    block(s.list, s.total);
+
+    var H = Math.ceil(paint(document.createElement("canvas").getContext("2d")));
+    var c = document.createElement("canvas"); c.width = W; c.height = H;
+    paint(c.getContext("2d"));
     lastCanvas = c;
     return c.toDataURL("image/png");
   }

@@ -3,7 +3,7 @@
 A simple, private web app that shows who talks the most in a WhatsApp group.
 Upload an exported chat and get a report for every participant.
 
-**Live app:** https://gosagi-a11y.github.io/whatsapp-chat-stats/
+**Live app:** https://gosagi-dev.github.io/whatsapp-chat-stats/
 
 ## Features
 

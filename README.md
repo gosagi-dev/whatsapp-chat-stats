@@ -38,3 +38,7 @@ Everything runs in your browser. The chat file is never uploaded to any server.
 ## Run locally
 
 Open `index.html` in a browser. No build step is needed.
+
+## License
+
+MIT License. Copyright © 2026 gosagi-dev. See [LICENSE](LICENSE).

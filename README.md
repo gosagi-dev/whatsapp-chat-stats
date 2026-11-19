@@ -9,6 +9,9 @@ Upload an exported chat and get a report for every participant.
 
 - Message count and percentage for each participant
 - Who starts conversations (set the gap between conversations: 1, 3, 6, 12 or 24 hours)
+- Filter by period: last 30 days, 3 months, 12 months, or a single year
+- Activity by month: a chart and a heat map of the top participants
+- More stats: busiest hours, fastest to reply, most photos and files, most used words
 - Rename or hide participants before you export
 - Export the report as a PDF or an image, or share the image
 - Works with iPhone and Android exports (`.txt` or `.zip`)

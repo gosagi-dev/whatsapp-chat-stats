@@ -65,6 +65,12 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
 #imgBox{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);overflow:auto;padding:max(56px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .imgCard{max-width:520px;margin:0 auto;background:var(--card);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .imgCard img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px}
+h3{font-size:1rem;margin:14px 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.card svg{display:block;width:100%;height:auto}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words span{background:var(--bar-bg);border-radius:14px;padding:3px 10px;font-size:.85rem}
+.words small{color:var(--mute)}
 </style>
 </head>
 <body>
@@ -100,6 +106,11 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     </div>
     <p class="mute" id="range"></p>
     <div class="opts">
+      <label class="chk" for="period"><span data-i18n="periodLbl"></span>
+        <select id="period"></select>
+      </label>
+    </div>
+    <div class="opts">
       <label class="chk" for="media"><input type="checkbox" id="media" checked> <span data-i18n="countMedia"></span></label>
       <span class="btns"><button id="copy" type="button" data-i18n="pdf"></button><button id="img" type="button" data-i18n="img"></button></span>
     </div>
@@ -129,6 +140,24 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       <span class="mute" id="convCount"></span>
     </div>
     <ol id="starts"></ol>
+
+    <h2 data-i18n="actTitle"></h2>
+    <p class="mute" data-i18n="actNote"></p>
+    <div class="card" id="actBox"></div>
+
+    <h2 data-i18n="moreTitle"></h2>
+    <div class="card">
+      <h3 style="margin-top:0" data-i18n="hoursTitle"></h3>
+      <div id="hoursBox"></div>
+      <p class="mute" id="peak"></p>
+      <h3 data-i18n="replyTitle"></h3>
+      <p class="mute" data-i18n="replyNote"></p>
+      <ol id="replyList" style="margin-top:8px"></ol>
+      <h3 data-i18n="mediaTitle"></h3>
+      <ol id="mediaList"></ol>
+      <h3 data-i18n="wordsTitle"></h3>
+      <div class="words" id="wordsBox"></div>
+    </div>
   </section>
   <p class="mute" style="text-align:center">© 2026 gosagi-dev · MIT License</p>
 </main>
@@ -158,7 +187,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"Cannot open zip. Try uploading the txt file.",noTxt:"No txt file found inside the zip.",noMsgs:"No messages found. Make sure this is a WhatsApp export file.",readErr:"Error reading the file",
       imgHelp:"Press and hold the image, then choose Save or Add to Photos.",close:"Close",pdf:"Export PDF",pdfNote:"PDF created. If no download started, this view blocks downloads. Use Export as image instead.",share:"Share image",shareFail:"Sharing is not available in this view. Press and hold the image to save it, then share it from Photos.",imgAlt:"Who Talks Most report",
       rTotals:"Total messages: {n} | Participants: {u}",rStarts:"Who starts conversations (silence of {h} hours): {n} conversations",
-      iTotals:"{n} messages · {u} participants",iStarts:"Who starts conversations? ({n})"},
+      iTotals:"{n} messages · {u} participants",iStarts:"Who starts conversations? ({n})",
+      periodLbl:"Period",pAll:"All time",p30:"Last 30 days",p90:"Last 3 months",p365:"Last 12 months",actTitle:"Activity by month",actNote:"Top participants. Darker means more messages that month.",moreTitle:"More stats",hoursTitle:"Busiest hours of the day",peakHour:"Most active hour: {h}:00",replyTitle:"Fastest to reply",replyNote:"Typical time to answer someone else's message, within 1 hour. Needs at least 10 replies.",mediaTitle:"Most photos and files",wordsTitle:"Most used words",noData:"Not enough data",tSec:"sec",tMin:"min"},
     he:{h1:"מי חופר?",intro:"העלו את קובץ ייצוא השיחה (txt או zip) וקבלו כמה הודעות שלח כל משתתף. הקובץ נקרא בטלפון בלבד ולא נשלח לשום מקום.",
       pick:"בחירת קובץ שיחה",pickHint:"בוואטסאפ: פתחו קבוצה ← שם הקבוצה ← ייצוא צ'אט ← ללא מדיה",
       msgs:"הודעות",users:"משתתפים",avg:"ממוצע למשתתף",range:"טווח תאריכים בקובץ: {a} עד {b}",
@@ -172,7 +202,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"לא ניתן לפתוח zip. נסו להעלות קובץ txt.",noTxt:"לא נמצא קובץ txt בתוך ה-zip.",noMsgs:"לא נמצאו הודעות. ודאו שזה קובץ ייצוא של וואטסאפ.",readErr:"שגיאה בקריאת הקובץ",
       imgHelp:"לחצו והחזיקו על התמונה ובחרו \"שמירה\" או \"הוספה לתמונות\".",close:"סגירה",pdf:"ייצוא PDF",pdfNote:"הקובץ נוצר. אם ההורדה לא התחילה, המסך הזה חוסם הורדות. השתמשו ב\"ייצוא כתמונה\".",share:"שיתוף תמונה",shareFail:"השיתוף לא זמין במסך הזה. לחצו והחזיקו על התמונה כדי לשמור אותה, ואז שתפו מהתמונות.",imgAlt:"דוח מי חופר",
       rTotals:"סה״כ הודעות: {n} | משתתפים: {u}",rStarts:"מי מתחיל שיחות (שקט של {h} שעות): {n} שיחות",
-      iTotals:"{n} הודעות · {u} משתתפים",iStarts:"מי מתחיל שיחות? ({n})"},
+      iTotals:"{n} הודעות · {u} משתתפים",iStarts:"מי מתחיל שיחות? ({n})",
+      periodLbl:"תקופה",pAll:"כל הזמן",p30:"30 הימים האחרונים",p90:"3 החודשים האחרונים",p365:"12 החודשים האחרונים",actTitle:"פעילות לפי חודש",actNote:"המשתתפים המובילים. צבע כהה יותר = יותר הודעות באותו חודש.",moreTitle:"עוד סטטיסטיקות",hoursTitle:"השעות העמוסות ביום",peakHour:"השעה הפעילה ביותר: {h}:00",replyTitle:"מי עונה הכי מהר",replyNote:"זמן טיפוסי למענה להודעה של מישהו אחר, עד שעה. נדרשות לפחות 10 תשובות.",mediaTitle:"הכי הרבה תמונות וקבצים",wordsTitle:"המילים הנפוצות",noData:"אין מספיק נתונים",tSec:"שנ׳",tMin:"דק׳"},
     es:{h1:"¿Quién habla más?",intro:"Sube una exportación de chat de WhatsApp (txt o zip) para ver cuántos mensajes envió cada persona. El archivo se lee solo en tu teléfono y no se sube a ningún sitio.",
       pick:"Elegir archivo del chat",pickHint:"En WhatsApp: abre un grupo → nombre del grupo → Exportar chat → Sin archivos",
       msgs:"Mensajes",users:"Participantes",avg:"Media por persona",range:"Rango de fechas del archivo: {a} a {b}",
@@ -186,7 +217,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"No se puede abrir el zip. Prueba a subir el archivo txt.",noTxt:"No hay ningún archivo txt dentro del zip.",noMsgs:"No se encontraron mensajes. Comprueba que sea una exportación de WhatsApp.",readErr:"Error al leer el archivo",
       imgHelp:"Mantén pulsada la imagen y elige Guardar o Añadir a Fotos.",close:"Cerrar",pdf:"Exportar PDF",pdfNote:"PDF creado. Si no empezó la descarga, esta vista bloquea las descargas. Usa Exportar como imagen.",share:"Compartir imagen",shareFail:"Compartir no está disponible en esta vista. Mantén pulsada la imagen para guardarla y compártela desde Fotos.",imgAlt:"Informe ¿Quién habla más?",
       rTotals:"Mensajes en total: {n} | Participantes: {u}",rStarts:"Quién inicia conversaciones (silencio de {h} horas): {n} conversaciones",
-      iTotals:"{n} mensajes · {u} participantes",iStarts:"¿Quién inicia conversaciones? ({n})"},
+      iTotals:"{n} mensajes · {u} participantes",iStarts:"¿Quién inicia conversaciones? ({n})",
+      periodLbl:"Periodo",pAll:"Todo el tiempo",p30:"Últimos 30 días",p90:"Últimos 3 meses",p365:"Últimos 12 meses",actTitle:"Actividad por mes",actNote:"Principales participantes. Más oscuro = más mensajes ese mes.",moreTitle:"Más estadísticas",hoursTitle:"Horas más activas del día",peakHour:"Hora más activa: {h}:00",replyTitle:"Quién responde más rápido",replyNote:"Tiempo habitual para responder al mensaje de otra persona, dentro de 1 hora. Requiere al menos 10 respuestas.",mediaTitle:"Más fotos y archivos",wordsTitle:"Palabras más usadas",noData:"No hay datos suficientes",tSec:"s",tMin:"min"},
     fr:{h1:"Qui parle le plus ?",intro:"Importez une exportation de discussion WhatsApp (txt ou zip) pour voir combien de messages chaque personne a envoyés. Le fichier est lu uniquement sur votre téléphone et n'est jamais envoyé.",
       pick:"Choisir le fichier de discussion",pickHint:"Dans WhatsApp : ouvrez un groupe → nom du groupe → Exporter la discussion → Sans médias",
       msgs:"Messages",users:"Participants",avg:"Moyenne par personne",range:"Période du fichier : du {a} au {b}",
@@ -200,7 +232,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"Impossible d'ouvrir le zip. Essayez d'importer le fichier txt.",noTxt:"Aucun fichier txt trouvé dans le zip.",noMsgs:"Aucun message trouvé. Vérifiez qu'il s'agit d'une exportation WhatsApp.",readErr:"Erreur de lecture du fichier",
       imgHelp:"Appuyez longuement sur l'image puis choisissez Enregistrer ou Ajouter aux photos.",close:"Fermer",pdf:"Exporter en PDF",pdfNote:"PDF créé. Si le téléchargement n'a pas démarré, cette vue bloque les téléchargements. Utilisez Exporter en image.",share:"Partager l'image",shareFail:"Le partage n'est pas disponible dans cette vue. Appuyez longuement sur l'image pour l'enregistrer, puis partagez-la depuis Photos.",imgAlt:"Rapport Qui parle le plus ?",
       rTotals:"Total des messages : {n} | Participants : {u}",rStarts:"Qui lance les conversations (silence de {h} h) : {n} conversations",
-      iTotals:"{n} messages · {u} participants",iStarts:"Qui lance les conversations ? ({n})"},
+      iTotals:"{n} messages · {u} participants",iStarts:"Qui lance les conversations ? ({n})",
+      periodLbl:"Période",pAll:"Depuis toujours",p30:"30 derniers jours",p90:"3 derniers mois",p365:"12 derniers mois",actTitle:"Activité par mois",actNote:"Principaux participants. Plus foncé = plus de messages ce mois-là.",moreTitle:"Plus de statistiques",hoursTitle:"Heures les plus actives",peakHour:"Heure la plus active : {h}h",replyTitle:"Qui répond le plus vite",replyNote:"Délai habituel pour répondre au message de quelqu'un d'autre, sous 1 heure. Au moins 10 réponses requises.",mediaTitle:"Plus de photos et fichiers",wordsTitle:"Mots les plus utilisés",noData:"Pas assez de données",tSec:"s",tMin:"min"},
     ru:{h1:"Кто пишет больше всех?",intro:"Загрузите экспорт чата WhatsApp (txt или zip), чтобы увидеть, сколько сообщений отправил каждый участник. Файл читается только на вашем телефоне и никуда не отправляется.",
       pick:"Выбрать файл чата",pickHint:"В WhatsApp: откройте группу → название группы → Экспорт чата → Без медиа",
       msgs:"Сообщений",users:"Участников",avg:"В среднем на человека",range:"Период в файле: с {a} по {b}",
@@ -214,7 +247,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"Не удаётся открыть zip. Попробуйте загрузить txt-файл.",noTxt:"В zip нет txt-файла.",noMsgs:"Сообщения не найдены. Убедитесь, что это экспорт WhatsApp.",readErr:"Ошибка чтения файла",
       imgHelp:"Нажмите на картинку и удерживайте, затем выберите «Сохранить» или «Добавить в Фото».",close:"Закрыть",pdf:"Экспорт в PDF",pdfNote:"PDF создан. Если загрузка не началась, в этом режиме загрузки заблокированы. Используйте экспорт в картинку.",share:"Поделиться картинкой",shareFail:"Отправка недоступна в этом режиме. Нажмите на картинку и удерживайте, чтобы сохранить, затем поделитесь из Фото.",imgAlt:"Отчёт «Кто пишет больше всех?»",
       rTotals:"Всего сообщений: {n} | Участников: {u}",rStarts:"Кто начинает разговоры (пауза {h} ч): {n} разговоров",
-      iTotals:"{n} сообщений · {u} участников",iStarts:"Кто начинает разговоры? ({n})"},
+      iTotals:"{n} сообщений · {u} участников",iStarts:"Кто начинает разговоры? ({n})",
+      periodLbl:"Период",pAll:"За всё время",p30:"Последние 30 дней",p90:"Последние 3 месяца",p365:"Последние 12 месяцев",actTitle:"Активность по месяцам",actNote:"Главные участники. Темнее — больше сообщений в этом месяце.",moreTitle:"Ещё статистика",hoursTitle:"Самые активные часы",peakHour:"Самый активный час: {h}:00",replyTitle:"Кто отвечает быстрее всех",replyNote:"Обычное время ответа на чужое сообщение, в пределах часа. Нужно не менее 10 ответов.",mediaTitle:"Больше всего фото и файлов",wordsTitle:"Самые частые слова",noData:"Недостаточно данных",tSec:"с",tMin:"мин"},
     ar:{h1:"من يتكلم أكثر؟",intro:"ارفع ملف تصدير محادثة واتساب (txt أو zip) لترى كم رسالة أرسل كل شخص. يُقرأ الملف على هاتفك فقط ولا يُرسل إلى أي مكان.",
       pick:"اختيار ملف المحادثة",pickHint:"في واتساب: افتح مجموعة ← اسم المجموعة ← تصدير الدردشة ← بدون وسائط",
       msgs:"رسائل",users:"مشاركون",avg:"المتوسط لكل شخص",range:"الفترة في الملف: من {a} إلى {b}",
@@ -228,7 +262,8 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       zipFail:"تعذر فتح ملف zip. جرّب رفع ملف txt.",noTxt:"لا يوجد ملف txt داخل ملف zip.",noMsgs:"لم يتم العثور على رسائل. تأكد أنه ملف تصدير من واتساب.",readErr:"خطأ في قراءة الملف",
       imgHelp:"اضغط مطولًا على الصورة ثم اختر حفظ أو إضافة إلى الصور.",close:"إغلاق",pdf:"تصدير PDF",pdfNote:"تم إنشاء PDF. إذا لم يبدأ التنزيل فهذا العرض يمنع التنزيلات. استخدم تصدير كصورة.",share:"مشاركة الصورة",shareFail:"المشاركة غير متاحة في هذا العرض. اضغط مطولًا على الصورة لحفظها ثم شاركها من الصور.",imgAlt:"تقرير من يتكلم أكثر؟",
       rTotals:"إجمالي الرسائل: {n} | المشاركون: {u}",rStarts:"من يبدأ المحادثات (صمت {h} ساعات): {n} محادثات",
-      iTotals:"{n} رسالة · {u} مشاركين",iStarts:"من يبدأ المحادثات؟ ({n})"}
+      iTotals:"{n} رسالة · {u} مشاركين",iStarts:"من يبدأ المحادثات؟ ({n})",
+      periodLbl:"الفترة",pAll:"كل الوقت",p30:"آخر 30 يومًا",p90:"آخر 3 أشهر",p365:"آخر 12 شهرًا",actTitle:"النشاط حسب الشهر",actNote:"أبرز المشاركين. اللون الأغمق = رسائل أكثر في ذلك الشهر.",moreTitle:"المزيد من الإحصاءات",hoursTitle:"أكثر ساعات اليوم نشاطًا",peakHour:"الساعة الأكثر نشاطًا: {h}:00",replyTitle:"من يرد أسرع",replyNote:"الوقت المعتاد للرد على رسالة شخص آخر، خلال ساعة. يلزم 10 ردود على الأقل.",mediaTitle:"أكثر الصور والملفات",wordsTitle:"الكلمات الأكثر استخدامًا",noData:"لا توجد بيانات كافية",tSec:"ث",tMin:"د"}
   };
   var RTL = {he:true, ar:true};
   var LOCALE = {en:"en-US", he:"he-IL", es:"es-ES", fr:"fr-FR", ru:"ru-RU", ar:"ar-u-nu-latn"};
@@ -271,7 +306,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     var users = {}, total = 0, first = "", last = "", cur = null, msgs = [];
     function commit(){
       if(!cur) return;
-      msgs.push({name:cur.name, d:cur.d, t:cur.t});
+      msgs.push({name:cur.name, d:cur.d, t:cur.t, media:cur.media, body: cur.media ? "" : cur.body});
       var u = users[cur.name] || (users[cur.name] = {name:cur.name, text:0, media:0, sys:true});
       u.sys = u.sys && (SYSV.test(cur.body) || (cur.lrm && !RE_MEDIA.test(cur.body)));
       if(cur.media) u.media++; else u.text++;
@@ -300,7 +335,9 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     Object.keys(users).forEach(function(n){ var u = users[n]; if(u.sys && u.text + u.media <= 100){ bad[n] = true; total -= u.text + u.media; } });
     msgs = msgs.filter(function(x){return !bad[x.name]});
     toTimes(msgs);
-    return {users:Object.keys(users).filter(function(n){return !bad[n]}).map(function(n){return users[n]}), total:total, first:first, last:last, msgs:msgs};
+    var minTs = Infinity, maxTs = -Infinity;
+    msgs.forEach(function(x){ if(!isNaN(x.ts)){ if(x.ts < minTs) minTs = x.ts; if(x.ts > maxTs) maxTs = x.ts; } });
+    return {minTs:minTs, maxTs:maxTs, users:Object.keys(users).filter(function(n){return !bad[n]}).map(function(n){return users[n]}), total:total, first:first, last:last, msgs:msgs};
   }
 
   function toTimes(msgs){
@@ -317,13 +354,13 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       var h = +tm[1], ap = tm[4];
       if(ap){ if(/p/i.test(ap) && h < 12) h += 12; else if(/a/i.test(ap) && h === 12) h = 0; }
       x.ts = Date.UTC(y, mo-1, d, h, +tm[2], +(tm[3]||0));
+      x.h = h; x.mo = y*12 + mo - 1;
     });
   }
 
   function starters(){
     var gap = (+$("gap").value) * 3600000, count = {}, prev = null, convs = 0;
-    data.msgs.forEach(function(x){
-      if(isNaN(x.ts) || hidden[x.name]) return;
+    getV().forEach(function(x){
       if(prev === null || x.ts - prev > gap){ var k = disp(x.name); count[k] = (count[k]||0) + 1; convs++; }
       prev = x.ts;
     });
@@ -331,12 +368,28 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     return {list:list, total:convs};
   }
 
+  var visCache = {}, wordCache = {};
+  function periodBounds(){
+    var v = $("period").value;
+    if(!data || !v || v === "all") return null;
+    if(v.charAt(0) === "y"){ var y = +v.slice(1); return [Date.UTC(y,0,1), Date.UTC(y+1,0,1)]; }
+    return [data.maxTs + 1 - (+v)*86400000, data.maxTs + 1];
+  }
+  function visKey(){ return $("period").value + "|" + Object.keys(hidden).sort().join("\u0001"); }
+  function getV(){
+    var key = visKey();
+    if(visCache.data === data && visCache.key === key) return visCache.v;
+    var b = periodBounds();
+    var v = data.msgs.filter(function(x){ return !hidden[x.name] && !isNaN(x.ts) && (!b || (x.ts >= b[0] && x.ts < b[1])); });
+    visCache = {data:data, key:key, v:v};
+    return v;
+  }
+
   function rows(){
     var inc = $("media").checked, m = {};
-    data.users.forEach(function(u){
-      if(hidden[u.name]) return;
-      var k = disp(u.name), o = m[k] || (m[k] = {name:k, text:0, media:0});
-      o.text += u.text; o.media += u.media;
+    getV().forEach(function(x){
+      var k = disp(x.name), o = m[k] || (m[k] = {name:k, text:0, media:0});
+      if(x.media) o.media++; else o.text++;
     });
     var list = Object.keys(m).map(function(k){var o = m[k]; return {name:o.name, text:o.text, media:o.media, n: inc ? o.text+o.media : o.text}})
       .filter(function(u){return u.n>0}).sort(function(a,b){return b.n-a.n});
@@ -397,6 +450,164 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     ol.appendChild(li);
   }
 
+  function drawSimple(ol, rank, name, label, frac){
+    var li = document.createElement("li");
+    var nm = document.createElement("span"); nm.className = "name"; nm.dir = "auto"; nm.textContent = rank + ". " + name;
+    var nu = document.createElement("span"); nu.className = "num"; var b = document.createElement("b"); b.textContent = label; nu.appendChild(b);
+    li.appendChild(nm); li.appendChild(nu);
+    if(frac != null){
+      var bar = document.createElement("div"); bar.className = "bar";
+      var fill = document.createElement("i"); fill.style.width = Math.max(2, frac*100) + "%"; bar.appendChild(fill); li.appendChild(bar);
+    }
+    ol.appendChild(li);
+  }
+
+  var NS = "http://www.w3.org/2000/svg";
+  function svgEl(tag, attrs, text){
+    var e = document.createElementNS(NS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    if(text != null) e.textContent = text;
+    return e;
+  }
+  function monthLabel(mo){
+    return new Date(Date.UTC(Math.floor(mo/12), mo%12, 1)).toLocaleDateString(LOCALE[lang], {month:"short", year:"2-digit", timeZone:"UTC"});
+  }
+  function fmtDur(ms){
+    var s = Math.round(ms/1000);
+    if(s < 60) return s + " " + t("tSec");
+    var m = Math.floor(s/60), r = s % 60;
+    return m + " " + t("tMin") + (m < 10 && r ? " " + r + " " + t("tSec") : "");
+  }
+
+  function renderActivity(){
+    var box = $("actBox"); box.textContent = "";
+    var V = getV();
+    if(!V.length){ box.textContent = t("noData"); return; }
+    var lo = Infinity, hi = -Infinity;
+    V.forEach(function(x){ if(x.mo < lo) lo = x.mo; if(x.mo > hi) hi = x.mo; });
+    var M = hi - lo + 1, per = {}, sum = {}, tot = [], i;
+    for(i=0;i<M;i++) tot.push(0);
+    V.forEach(function(x){
+      var k = disp(x.name), j = x.mo - lo;
+      if(!per[k]){ per[k] = []; for(var q=0;q<M;q++) per[k].push(0); sum[k] = 0; }
+      per[k][j]++; sum[k]++; tot[j]++;
+    });
+    var names = Object.keys(sum).sort(function(a,b){return sum[b]-sum[a]}).slice(0,8);
+    var W = 600, lab = 120, cw = Math.min(40, (W-lab-4)/M), rh = 20, topH = 56, y0 = topH + 24;
+    var H = y0 + names.length*(rh+2) + 4;
+    var svg = svgEl("svg", {viewBox:"0 0 "+W+" "+H, role:"img", direction:"ltr"});
+    svg.style.direction = "ltr";
+    var maxTot = Math.max.apply(null, tot);
+    svg.appendChild(svgEl("text", {x:lab-8, y:topH-2, "text-anchor":"end", "font-size":12, style:"fill:var(--mute)"}, t("msgs")));
+    var step = Math.max(1, Math.ceil(M / Math.max(1, Math.floor((W-lab)/64))));
+    for(i=0;i<M;i++){
+      var h = Math.max(1, tot[i]/maxTot*topH);
+      var bar = svgEl("rect", {x:lab+i*cw, y:topH-h, width:Math.max(1,cw-1), height:h, rx:1, style:"fill:var(--bar)"});
+      bar.appendChild(svgEl("title", {}, monthLabel(lo+i) + ": " + fmt(tot[i])));
+      svg.appendChild(bar);
+      if(i % step === 0 && lab+i*cw+cw/2 < W-18) svg.appendChild(svgEl("text", {x:lab+i*cw+cw/2, y:topH+14, "text-anchor":"middle", "font-size":11, style:"fill:var(--mute)"}, monthLabel(lo+i)));
+    }
+    names.forEach(function(n, r){
+      var y = y0 + r*(rh+2), arr = per[n], mx = Math.max.apply(null, arr);
+      var nm = n.length > 16 ? n.slice(0,15)+"…" : n;
+      svg.appendChild(svgEl("text", {x:lab-8, y:y+rh/2+4, "text-anchor":"end", "font-size":12, style:"fill:var(--fg)"}, nm));
+      for(var j=0;j<M;j++){
+        var v = arr[j], c = svgEl("rect", {x:lab+j*cw, y:y, width:Math.max(1,cw-1), height:rh, rx:2, style: v ? "fill:var(--bar);fill-opacity:"+(0.12+0.88*v/mx).toFixed(2) : "fill:var(--bar-bg)"});
+        c.appendChild(svgEl("title", {}, n + " · " + monthLabel(lo+j) + ": " + fmt(v)));
+        svg.appendChild(c);
+      }
+    });
+    box.appendChild(svg);
+  }
+
+  var STOP = {};
+  ("the and that this you for are was with have not but what all can his her they will just from your its get has had out one now how who our been then them than would there their about like when were she him too did yes yeah okay lol message deleted " +
+   "של את על לא זה הוא היא אני אתה גם כן מה אבל עם אם כל יש לי לך הם אז רק עוד או כי מי אין היה כמו זאת אנחנו לו שלי בא פה שם הודעה נמחקה מחקת " +
+   "que los las por con una para del como pero más sus les des pas pour est une dans qui sur что это как так для его все они был").split(" ").forEach(function(w){ STOP[w] = 1; });
+  var WORD; try{ WORD = new RegExp("[\\p{L}\\p{N}_']+", "gu"); }catch(_){ WORD = /[A-Za-z֐-׿0-9_']+/g; }
+
+  function renderExtra(){
+    var V = getV(), i;
+    // hours
+    var hb = $("hoursBox"); hb.textContent = "";
+    if(!V.length){ hb.textContent = t("noData"); $("peak").textContent = ""; }
+    else {
+      var c = []; for(i=0;i<24;i++) c.push(0);
+      V.forEach(function(x){ c[x.h]++; });
+      var mx = Math.max.apply(null, c), peak = c.indexOf(mx), bw = 600/24;
+      var svg = svgEl("svg", {viewBox:"0 0 600 104", role:"img"}); svg.style.direction = "ltr";
+      for(i=0;i<24;i++){
+        var h = Math.max(1, c[i]/mx*72);
+        var r = svgEl("rect", {x:i*bw+2, y:76-h, width:bw-4, height:h, rx:2, style:"fill:var(--bar);fill-opacity:"+(i===peak?1:0.5)});
+        r.appendChild(svgEl("title", {}, i + ":00 · " + fmt(c[i])));
+        svg.appendChild(r);
+        if(i % 3 === 0) svg.appendChild(svgEl("text", {x:i*bw+bw/2, y:96, "text-anchor":"middle", "font-size":12, style:"fill:var(--mute)"}, String(i)));
+      }
+      hb.appendChild(svg);
+      $("peak").textContent = t("peakHour", {h:peak});
+    }
+    // reply time
+    var prev = null, rep = {};
+    V.forEach(function(x){
+      if(prev){
+        var a = disp(prev.name), b = disp(x.name), d = x.ts - prev.ts;
+        if(a !== b && d >= 0 && d <= 3600000){ (rep[b] || (rep[b] = [])).push(d); }
+      }
+      prev = x;
+    });
+    var med = Object.keys(rep).filter(function(k){return rep[k].length >= 10}).map(function(k){
+      var a = rep[k].sort(function(p,q){return p-q}); return {name:k, v:a[Math.floor(a.length/2)]};
+    }).sort(function(p,q){return p.v-q.v}).slice(0,8);
+    var rl = $("replyList"); rl.textContent = "";
+    if(!med.length){ var li0 = document.createElement("li"); li0.textContent = t("noData"); rl.appendChild(li0); }
+    med.forEach(function(u,j){ drawSimple(rl, j+1, u.name, fmtDur(u.v), null); });
+    // media
+    var ml = $("mediaList"); ml.textContent = "";
+    var mr = rows().list.filter(function(u){return u.media > 0}).sort(function(p,q){return q.media-p.media}).slice(0,8);
+    if(!mr.length){ var li1 = document.createElement("li"); li1.textContent = t("noData"); ml.appendChild(li1); }
+    mr.forEach(function(u,j){ drawSimple(ml, j+1, u.name, fmt(u.media), u.media/mr[0].media); });
+    // words
+    var wb = $("wordsBox"); wb.textContent = "";
+    var key = visKey();
+    if(!(wordCache.data === data && wordCache.key === key)){
+      var cnt = Object.create(null);
+      V.forEach(function(x){
+        if(x.media || !x.body) return;
+        var w = x.body.toLowerCase().match(WORD); if(!w) return;
+        w.forEach(function(s){
+          if(s.length < 3 || STOP[s] || /^\d+$/.test(s) || s.indexOf("http") === 0) return;
+          cnt[s] = (cnt[s] || 0) + 1;
+        });
+      });
+      var arr = Object.keys(cnt).map(function(k){return {w:k, n:cnt[k]}}).sort(function(p,q){return q.n-p.n}).slice(0,24);
+      wordCache = {data:data, key:key, v:arr};
+    }
+    if(!wordCache.v.length) wb.textContent = t("noData");
+    wordCache.v.forEach(function(o){
+      var sp = document.createElement("span"); sp.dir = "auto";
+      sp.appendChild(document.createTextNode(o.w + " "));
+      var sm = document.createElement("small"); sm.textContent = fmt(o.n); sp.appendChild(sm);
+      wb.appendChild(sp);
+    });
+  }
+
+  function buildPeriod(){
+    var sel = $("period"), cur = sel.value || "all"; sel.textContent = "";
+    function add(v, txt){ var o = document.createElement("option"); o.value = v; o.textContent = txt; sel.appendChild(o); }
+    add("all", t("pAll"));
+    var span = (data.maxTs - data.minTs) / 86400000;
+    if(span > 45) add("30", t("p30"));
+    if(span > 120) add("90", t("p90"));
+    if(span > 400) add("365", t("p365"));
+    var y0 = new Date(data.minTs).getUTCFullYear(), y1 = new Date(data.maxTs).getUTCFullYear();
+    if(y1 > y0) for(var y = y1; y >= y0; y--) add("y"+y, String(y));
+    sel.value = Array.prototype.some.call(sel.options, function(o){return o.value === cur}) ? cur : "all";
+  }
+  function periodSuffix(){
+    var sel = $("period");
+    return (sel.value && sel.value !== "all" && sel.selectedIndex >= 0) ? " · " + sel.options[sel.selectedIndex].text : "";
+  }
+
   function renderMain(){
     var r = rows(), max = r.list.length ? r.list[0].n : 1;
     $("sTotal").textContent = fmt(r.total);
@@ -417,7 +628,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     r.list.forEach(function(u,i){ drawRow(ol, i+1, u, r.total, max, ""); });
   }
 
-  function render(){ renderMain(); renderStarts(); }
+  function render(){ renderMain(); renderStarts(); renderActivity(); renderExtra(); }
 
   function report(){
     var r = rows();
@@ -440,7 +651,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     x.fillStyle = "#ffffff"; x.fillRect(0,0,W,H);
     var y = padTop;
     x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "bold 58px "+font; x.fillText(t("h1"), S, y+40);
-    x.font = "30px "+font; x.fillStyle = "#5d6d67"; x.fillText(t("iTotals",{n:r.total,u:r.list.length}), S, y+100);
+    x.font = "30px "+font; x.fillStyle = "#5d6d67"; x.fillText(t("iTotals",{n:r.total,u:r.list.length}) + periodSuffix(), S, y+100);
     y += head;
     function block(list, total){
       var max = list.length ? list[0].n : 1;
@@ -480,7 +691,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
     $("imgOut").alt = t("imgAlt");
     $("copy").textContent = t("pdf");
     if(noteState) setNote(noteState.key, noteState.p, noteState.err);
-    if(data){ buildNames(); render(); }
+    if(data){ buildPeriod(); buildNames(); render(); }
   }
 
   async function load(file){
@@ -498,7 +709,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
       }
       var d = parse(text);
       if(!d.total) throw new Error("noMsgs");
-      data = d; alias = {}; youPick = ""; hidden = {}; $("out").style.display = "flex"; buildNames(); render();
+      data = d; alias = {}; youPick = ""; hidden = {}; $("period").textContent = ""; $("out").style.display = "flex"; buildPeriod(); buildNames(); render();
       setNote(null);
     }catch(e){
       setNote(L.en[e.message] ? e.message : "readErr", null, true);
@@ -508,6 +719,7 @@ input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px so
   $("file").addEventListener("change", function(e){ if(e.target.files[0]) load(e.target.files[0]); });
   $("media").addEventListener("change", render);
   $("gap").addEventListener("change", renderStarts);
+  $("period").addEventListener("change", render);
   $("lang").addEventListener("change", function(e){
     lang = e.target.value;
     try{ localStorage.setItem("mihofer-lang", lang); }catch(_){}

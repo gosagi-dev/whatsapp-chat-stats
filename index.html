@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b7a62">
+<meta name="description" content="Upload a WhatsApp chat export and see who sent the most messages and who starts conversations. Runs entirely on your device.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>מי חופר</title>
+<style>
+html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f4f6f5;--card:#fff;--fg:#14201c;--mute:#5d6d67;--line:#dbe3df;--accent:#0b7a62;--bar:#0b7a62;--bar-bg:#e3ece8;--warn:#9a5b00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1512;--card:#16201c;--fg:#e8f0ec;--mute:#93a59d;--line:#27352f;--accent:#3ed3a8;--bar:#3ed3a8;--bar-bg:#22302a;--warn:#e0a84a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1512;--card:#16201c;--fg:#e8f0ec;--mute:#93a59d;--line:#27352f;--accent:#3ed3a8;--bar:#3ed3a8;--bar-bg:#22302a;--warn:#e0a84a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font-size:1.5rem;margin:0;text-wrap:balance}
+h2{font-size:1.2rem;margin:8px 0 0}
+select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:4px 8px;max-width:100%}
+p{margin:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.top h1{min-width:0}
+.mute{color:var(--mute);font-size:.9rem}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:22px 16px;background:var(--card);cursor:pointer}
+.drop:focus-within,.drop.over{border-color:var(--accent)}
+.drop strong{color:var(--accent);font-size:1.1rem}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;min-width:0}
+.stat b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--mute)}
+.banner{background:var(--card);border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:.9rem}
+.err{border-color:#c0392b;color:#c0392b}
+.opts{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+label.chk{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{font:inherit;background:var(--accent);color:var(--bg);border:0;border-radius:10px;padding:9px 14px;cursor:pointer}
+button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;min-width:0}
+.name{overflow-wrap:anywhere;min-width:0}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.num b{font-size:1.05rem}
+.bar{grid-column:1/-1;height:8px;background:var(--bar-bg);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--bar);border-radius:4px}
+.sub{grid-column:1/-1;font-size:.8rem;color:var(--mute)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0}
+.nrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) auto;gap:8px;align-items:center;margin-top:8px}
+.nrow label{overflow-wrap:anywhere;font-size:.85rem}
+input[type=text]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0;width:100%}
+#imgBox{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);overflow:auto;padding:max(56px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.imgCard{max-width:520px;margin:0 auto;background:var(--card);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.imgCard img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px}
+</style>
+</head>
+<body>
+<main id="app" dir="ltr" lang="en">
+  <header class="top">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+      <h1 data-i18n="h1"></h1>
+      <p class="mute" data-i18n="intro"></p>
+    </div>
+    <select id="lang" aria-label="Language">
+      <option value="en">English</option>
+      <option value="he">עברית</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="ru">Русский</option>
+      <option value="ar">العربية</option>
+    </select>
+  </header>
+
+  <label class="drop" id="drop">
+    <strong data-i18n="pick"></strong>
+    <span class="mute" data-i18n="pickHint"></span>
+    <input type="file" id="file">
+  </label>
+
+  <div id="msg" class="banner" hidden></div>
+
+  <section id="out" style="display:flex;flex-direction:column;gap:16px">
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span data-i18n="msgs"></span></div>
+      <div class="stat"><b id="sUsers">0</b><span data-i18n="users"></span></div>
+      <div class="stat"><b id="sAvg">0</b><span data-i18n="avg"></span></div>
+    </div>
+    <p class="mute" id="range"></p>
+    <div class="opts">
+      <label class="chk" for="media"><input type="checkbox" id="media" checked> <span data-i18n="countMedia"></span></label>
+      <span class="btns"><button id="copy" type="button" data-i18n="pdf"></button><button id="img" type="button" data-i18n="img"></button></span>
+    </div>
+    <div id="youBox" class="opts" hidden>
+      <label class="chk" for="youSel"><span data-i18n="youQ"></span>
+        <select id="youSel"></select>
+      </label>
+    </div>
+    <details id="names">
+      <summary data-i18n="namesSummary"></summary>
+      <p class="mute" data-i18n="namesNote"></p>
+      <div id="nameList"></div>
+    </details>
+    <ol id="list"></ol>
+
+    <h2 data-i18n="startsTitle"></h2>
+    <div class="opts">
+      <label class="chk" for="gap"><span data-i18n="gapLbl"></span>
+        <select id="gap">
+          <option value="1" data-i18n="g1"></option>
+          <option value="3" data-i18n="g3"></option>
+          <option value="6" data-i18n="g6" selected></option>
+          <option value="12" data-i18n="g12"></option>
+          <option value="24" data-i18n="g24"></option>
+        </select>
+      </label>
+      <span class="mute" id="convCount"></span>
+    </div>
+    <ol id="starts"></ol>
+  </section>
+</main>
+<div id="imgBox" dir="ltr" hidden>
+  <div class="imgCard">
+    <p class="mute" data-i18n="imgHelp"></p>
+    <img id="imgOut" alt="">
+    <p class="banner err" id="shareMsg" hidden></p>
+    <div class="btns"><button id="imgShare" type="button" data-i18n="share"></button><button id="imgClose" type="button" data-i18n="close"></button></div>
+  </div>
+</div>
+
+<script src="jszip.min.js"></script>
+<script>
+(function(){
+  var L = {
+    en:{h1:"Who Talks Most?",intro:"Upload a WhatsApp chat export (txt or zip) to see how many messages each person sent. The file is read on your phone only and is never uploaded.",
+      pick:"Choose chat file",pickHint:"In WhatsApp: open a group → group name → Export chat → Without media",
+      msgs:"Messages",users:"Participants",avg:"Avg per person",range:"Date range in file: {a} to {b}",
+      countMedia:"Also count photos and files",copy:"Copy report",copied:"Copied",copyFail:"Copy failed",img:"Export as image",
+      namesSummary:"Edit participant names",namesNote:"Rename people before exporting. If two people get the same name, their counts are merged. Tick Hide to remove a row from the report, for example the group name.",
+      hide:"Hide",youQ:"The file has a participant called You. Who is that?",pickName:"Choose a name",
+      startsTitle:"Who starts conversations?",gapLbl:"New conversation after silence of",g1:"1 hour",g3:"3 hours",g6:"6 hours",g12:"12 hours",g24:"1 day",
+      convs:"{n} conversations",mediaSub:"{a} text messages, {b} photos/files",
+      sample:"This is an example. Upload a file to see your group.",
+      autoHidden:"Automatically hid system-message rows: {names}. You can bring them back under Edit participant names.",
+      zipFail:"Cannot open zip. Try uploading the txt file.",noTxt:"No txt file found inside the zip.",noMsgs:"No messages found. Make sure this is a WhatsApp export file.",readErr:"Error reading the file",
+      imgHelp:"Press and hold the image, then choose Save or Add to Photos.",close:"Close",pdf:"Export PDF",pdfNote:"PDF created. If no download started, this view blocks downloads. Use Export as image instead.",share:"Share image",shareFail:"Sharing is not available in this view. Press and hold the image to save it, then share it from Photos.",imgAlt:"Who Talks Most report",
+      rTotals:"Total messages: {n} | Participants: {u}",rStarts:"Who starts conversations (silence of {h} hours): {n} conversations",
+      iTotals:"{n} messages · {u} participants",iStarts:"Who starts conversations? ({n})"},
+    he:{h1:"מי חופר?",intro:"העלו את קובץ ייצוא השיחה (txt או zip) וקבלו כמה הודעות שלח כל משתתף. הקובץ נקרא בטלפון בלבד ולא נשלח לשום מקום.",
+      pick:"בחירת קובץ שיחה",pickHint:"בוואטסאפ: פתחו קבוצה ← שם הקבוצה ← ייצוא צ'אט ← ללא מדיה",
+      msgs:"הודעות",users:"משתתפים",avg:"ממוצע למשתתף",range:"טווח תאריכים בקובץ: {a} עד {b}",
+      countMedia:"לספור גם תמונות וקבצים",copy:"העתקת הדוח",copied:"הועתק",copyFail:"ההעתקה נכשלה",img:"ייצוא כתמונה",
+      namesSummary:"עריכת שמות משתתפים",namesNote:"שנו שם לפני הייצוא. אם תכתבו לשני אנשים אותו שם, הספירה שלהם תאוחד. סמנו \"הסתר\" כדי להוציא שורה מהדוח, למשל שם הקבוצה.",
+      hide:"הסתר",youQ:"בקובץ יש משתתף בשם You. מי זה בשיחה?",pickName:"בחרו שם",
+      startsTitle:"מי מתחיל שיחות?",gapLbl:"שיחה חדשה אחרי שקט של",g1:"שעה",g3:"3 שעות",g6:"6 שעות",g12:"12 שעות",g24:"יום",
+      convs:"{n} שיחות",mediaSub:"{a} הודעות טקסט, {b} תמונות/קבצים",
+      sample:"זו דוגמה. העלו קובץ כדי לראות את הקבוצה שלכם.",
+      autoHidden:"הוסתרו אוטומטית שורות של הודעות מערכת: {names}. אפשר להחזיר אותן ב'עריכת שמות משתתפים'.",
+      zipFail:"לא ניתן לפתוח zip. נסו להעלות קובץ txt.",noTxt:"לא נמצא קובץ txt בתוך ה-zip.",noMsgs:"לא נמצאו הודעות. ודאו שזה קובץ ייצוא של וואטסאפ.",readErr:"שגיאה בקריאת הקובץ",
+      imgHelp:"לחצו והחזיקו על התמונה ובחרו \"שמירה\" או \"הוספה לתמונות\".",close:"סגירה",pdf:"ייצוא PDF",pdfNote:"הקובץ נוצר. אם ההורדה לא התחילה, המסך הזה חוסם הורדות. השתמשו ב\"ייצוא כתמונה\".",share:"שיתוף תמונה",shareFail:"השיתוף לא זמין במסך הזה. לחצו והחזיקו על התמונה כדי לשמור אותה, ואז שתפו מהתמונות.",imgAlt:"דוח מי חופר",
+      rTotals:"סה״כ הודעות: {n} | משתתפים: {u}",rStarts:"מי מתחיל שיחות (שקט של {h} שעות): {n} שיחות",
+      iTotals:"{n} הודעות · {u} משתתפים",iStarts:"מי מתחיל שיחות? ({n})"},
+    es:{h1:"¿Quién habla más?",intro:"Sube una exportación de chat de WhatsApp (txt o zip) para ver cuántos mensajes envió cada persona. El archivo se lee solo en tu teléfono y no se sube a ningún sitio.",
+      pick:"Elegir archivo del chat",pickHint:"En WhatsApp: abre un grupo → nombre del grupo → Exportar chat → Sin archivos",
+      msgs:"Mensajes",users:"Participantes",avg:"Media por persona",range:"Rango de fechas del archivo: {a} a {b}",
+      countMedia:"Contar también fotos y archivos",copy:"Copiar informe",copied:"Copiado",copyFail:"No se pudo copiar",img:"Exportar como imagen",
+      namesSummary:"Editar nombres de participantes",namesNote:"Cambia los nombres antes de exportar. Si dos personas tienen el mismo nombre, sus cuentas se suman. Marca Ocultar para quitar una fila del informe, por ejemplo el nombre del grupo.",
+      hide:"Ocultar",youQ:"El archivo tiene un participante llamado You. ¿Quién es?",pickName:"Elige un nombre",
+      startsTitle:"¿Quién inicia las conversaciones?",gapLbl:"Nueva conversación tras un silencio de",g1:"1 hora",g3:"3 horas",g6:"6 horas",g12:"12 horas",g24:"1 día",
+      convs:"{n} conversaciones",mediaSub:"{a} mensajes de texto, {b} fotos/archivos",
+      sample:"Esto es un ejemplo. Sube un archivo para ver tu grupo.",
+      autoHidden:"Se ocultaron automáticamente filas de mensajes del sistema: {names}. Puedes recuperarlas en Editar nombres de participantes.",
+      zipFail:"No se puede abrir el zip. Prueba a subir el archivo txt.",noTxt:"No hay ningún archivo txt dentro del zip.",noMsgs:"No se encontraron mensajes. Comprueba que sea una exportación de WhatsApp.",readErr:"Error al leer el archivo",
+      imgHelp:"Mantén pulsada la imagen y elige Guardar o Añadir a Fotos.",close:"Cerrar",pdf:"Exportar PDF",pdfNote:"PDF creado. Si no empezó la descarga, esta vista bloquea las descargas. Usa Exportar como imagen.",share:"Compartir imagen",shareFail:"Compartir no está disponible en esta vista. Mantén pulsada la imagen para guardarla y compártela desde Fotos.",imgAlt:"Informe ¿Quién habla más?",
+      rTotals:"Mensajes en total: {n} | Participantes: {u}",rStarts:"Quién inicia conversaciones (silencio de {h} horas): {n} conversaciones",
+      iTotals:"{n} mensajes · {u} participantes",iStarts:"¿Quién inicia conversaciones? ({n})"},
+    fr:{h1:"Qui parle le plus ?",intro:"Importez une exportation de discussion WhatsApp (txt ou zip) pour voir combien de messages chaque personne a envoyés. Le fichier est lu uniquement sur votre téléphone et n'est jamais envoyé.",
+      pick:"Choisir le fichier de discussion",pickHint:"Dans WhatsApp : ouvrez un groupe → nom du groupe → Exporter la discussion → Sans médias",
+      msgs:"Messages",users:"Participants",avg:"Moyenne par personne",range:"Période du fichier : du {a} au {b}",
+      countMedia:"Compter aussi les photos et fichiers",copy:"Copier le rapport",copied:"Copié",copyFail:"Échec de la copie",img:"Exporter en image",
+      namesSummary:"Modifier les noms des participants",namesNote:"Renommez les personnes avant l'export. Si deux personnes ont le même nom, leurs totaux sont fusionnés. Cochez Masquer pour retirer une ligne du rapport, par exemple le nom du groupe.",
+      hide:"Masquer",youQ:"Le fichier contient un participant nommé You. Qui est-ce ?",pickName:"Choisir un nom",
+      startsTitle:"Qui lance les conversations ?",gapLbl:"Nouvelle conversation après un silence de",g1:"1 heure",g3:"3 heures",g6:"6 heures",g12:"12 heures",g24:"1 jour",
+      convs:"{n} conversations",mediaSub:"{a} messages texte, {b} photos/fichiers",
+      sample:"Ceci est un exemple. Importez un fichier pour voir votre groupe.",
+      autoHidden:"Lignes de messages système masquées automatiquement : {names}. Vous pouvez les réafficher dans Modifier les noms des participants.",
+      zipFail:"Impossible d'ouvrir le zip. Essayez d'importer le fichier txt.",noTxt:"Aucun fichier txt trouvé dans le zip.",noMsgs:"Aucun message trouvé. Vérifiez qu'il s'agit d'une exportation WhatsApp.",readErr:"Erreur de lecture du fichier",
+      imgHelp:"Appuyez longuement sur l'image puis choisissez Enregistrer ou Ajouter aux photos.",close:"Fermer",pdf:"Exporter en PDF",pdfNote:"PDF créé. Si le téléchargement n'a pas démarré, cette vue bloque les téléchargements. Utilisez Exporter en image.",share:"Partager l'image",shareFail:"Le partage n'est pas disponible dans cette vue. Appuyez longuement sur l'image pour l'enregistrer, puis partagez-la depuis Photos.",imgAlt:"Rapport Qui parle le plus ?",
+      rTotals:"Total des messages : {n} | Participants : {u}",rStarts:"Qui lance les conversations (silence de {h} h) : {n} conversations",
+      iTotals:"{n} messages · {u} participants",iStarts:"Qui lance les conversations ? ({n})"},
+    ru:{h1:"Кто пишет больше всех?",intro:"Загрузите экспорт чата WhatsApp (txt или zip), чтобы увидеть, сколько сообщений отправил каждый участник. Файл читается только на вашем телефоне и никуда не отправляется.",
+      pick:"Выбрать файл чата",pickHint:"В WhatsApp: откройте группу → название группы → Экспорт чата → Без медиа",
+      msgs:"Сообщений",users:"Участников",avg:"В среднем на человека",range:"Период в файле: с {a} по {b}",
+      countMedia:"Считать также фото и файлы",copy:"Копировать отчёт",copied:"Скопировано",copyFail:"Не удалось скопировать",img:"Экспорт в картинку",
+      namesSummary:"Изменить имена участников",namesNote:"Переименуйте людей перед экспортом. Если двум людям дать одно имя, их счёт объединится. Отметьте «Скрыть», чтобы убрать строку из отчёта, например название группы.",
+      hide:"Скрыть",youQ:"В файле есть участник с именем You. Кто это?",pickName:"Выберите имя",
+      startsTitle:"Кто начинает разговоры?",gapLbl:"Новый разговор после паузы в",g1:"1 час",g3:"3 часа",g6:"6 часов",g12:"12 часов",g24:"1 день",
+      convs:"Разговоров: {n}",mediaSub:"{a} текстовых сообщений, {b} фото/файлов",
+      sample:"Это пример. Загрузите файл, чтобы увидеть свою группу.",
+      autoHidden:"Автоматически скрыты строки системных сообщений: {names}. Их можно вернуть в разделе «Изменить имена участников».",
+      zipFail:"Не удаётся открыть zip. Попробуйте загрузить txt-файл.",noTxt:"В zip нет txt-файла.",noMsgs:"Сообщения не найдены. Убедитесь, что это экспорт WhatsApp.",readErr:"Ошибка чтения файла",
+      imgHelp:"Нажмите на картинку и удерживайте, затем выберите «Сохранить» или «Добавить в Фото».",close:"Закрыть",pdf:"Экспорт в PDF",pdfNote:"PDF создан. Если загрузка не началась, в этом режиме загрузки заблокированы. Используйте экспорт в картинку.",share:"Поделиться картинкой",shareFail:"Отправка недоступна в этом режиме. Нажмите на картинку и удерживайте, чтобы сохранить, затем поделитесь из Фото.",imgAlt:"Отчёт «Кто пишет больше всех?»",
+      rTotals:"Всего сообщений: {n} | Участников: {u}",rStarts:"Кто начинает разговоры (пауза {h} ч): {n} разговоров",
+      iTotals:"{n} сообщений · {u} участников",iStarts:"Кто начинает разговоры? ({n})"},
+    ar:{h1:"من يتكلم أكثر؟",intro:"ارفع ملف تصدير محادثة واتساب (txt أو zip) لترى كم رسالة أرسل كل شخص. يُقرأ الملف على هاتفك فقط ولا يُرسل إلى أي مكان.",
+      pick:"اختيار ملف المحادثة",pickHint:"في واتساب: افتح مجموعة ← اسم المجموعة ← تصدير الدردشة ← بدون وسائط",
+      msgs:"رسائل",users:"مشاركون",avg:"المتوسط لكل شخص",range:"الفترة في الملف: من {a} إلى {b}",
+      countMedia:"احتساب الصور والملفات أيضًا",copy:"نسخ التقرير",copied:"تم النسخ",copyFail:"فشل النسخ",img:"تصدير كصورة",
+      namesSummary:"تعديل أسماء المشاركين",namesNote:"غيّر الأسماء قبل التصدير. إذا أعطيت شخصين الاسم نفسه فسيُجمع عددهما. فعّل «إخفاء» لإزالة صف من التقرير، مثل اسم المجموعة.",
+      hide:"إخفاء",youQ:"في الملف مشارك اسمه You. من هو؟",pickName:"اختر اسمًا",
+      startsTitle:"من يبدأ المحادثات؟",gapLbl:"محادثة جديدة بعد صمت مدته",g1:"ساعة",g3:"3 ساعات",g6:"6 ساعات",g12:"12 ساعة",g24:"يوم",
+      convs:"{n} محادثات",mediaSub:"{a} رسائل نصية، {b} صور/ملفات",
+      sample:"هذا مثال. ارفع ملفًا لرؤية مجموعتك.",
+      autoHidden:"تم إخفاء صفوف رسائل النظام تلقائيًا: {names}. يمكنك إعادتها من «تعديل أسماء المشاركين».",
+      zipFail:"تعذر فتح ملف zip. جرّب رفع ملف txt.",noTxt:"لا يوجد ملف txt داخل ملف zip.",noMsgs:"لم يتم العثور على رسائل. تأكد أنه ملف تصدير من واتساب.",readErr:"خطأ في قراءة الملف",
+      imgHelp:"اضغط مطولًا على الصورة ثم اختر حفظ أو إضافة إلى الصور.",close:"إغلاق",pdf:"تصدير PDF",pdfNote:"تم إنشاء PDF. إذا لم يبدأ التنزيل فهذا العرض يمنع التنزيلات. استخدم تصدير كصورة.",share:"مشاركة الصورة",shareFail:"المشاركة غير متاحة في هذا العرض. اضغط مطولًا على الصورة لحفظها ثم شاركها من الصور.",imgAlt:"تقرير من يتكلم أكثر؟",
+      rTotals:"إجمالي الرسائل: {n} | المشاركون: {u}",rStarts:"من يبدأ المحادثات (صمت {h} ساعات): {n} محادثات",
+      iTotals:"{n} رسالة · {u} مشاركين",iStarts:"من يبدأ المحادثات؟ ({n})"}
+  };
+  var RTL = {he:true, ar:true};
+  var LOCALE = {en:"en-US", he:"he-IL", es:"es-ES", fr:"fr-FR", ru:"ru-RU", ar:"ar-u-nu-latn"};
+  var lang = "en";
+  try{ var saved = localStorage.getItem("mihofer-lang"); if(saved && L[saved]) lang = saved; }catch(_){}
+
+  function t(k, p){
+    var s = (L[lang] && L[lang][k]) || L.en[k] || k;
+    if(p) Object.keys(p).forEach(function(n){ s = s.split("{"+n+"}").join(p[n]); });
+    return s;
+  }
+
+
+
+  var $ = function(id){return document.getElementById(id)};
+  var DATE = "(\\d{1,4}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{1,4})";
+  var TIME = "(\\d{1,2}:\\d{2}(?::\\d{2})?(?:\\s?[APap]\\.?[Mm]\\.?)?)";
+  var RE_A = new RegExp("^" + DATE + ",?\\s+" + TIME + "\\s+-\\s+(.*)$");
+  var RE_I = new RegExp("^\\[" + DATE + ",?\\s+" + TIME + "\\]\\s+(.*)$");
+  var RE_MEDIA = /<[^>]*(omitted|הושמט|לא נכלל|attached)[^>]*>|(image|video|audio|sticker|GIF|document)\s+omitted|(תמונה|סרטון|אודיו|מדבקה|מסמך|GIF)\s+הושמט/i;
+  var RE_SYS = /^\s*(Messages and calls are end-to-end encrypted|ההודעות והשיחות מוצפנות|הודעות ושיחות מוצפנות|.{0,60}\bcreated (this )?group\b|.{0,60}יצר\S* את הקבוצה)/i;
+  var RE_KEEP = /(This message was deleted|You deleted this message|הודעה זו נמחקה|מחקת את ההודעה|POLL|סקר|location|מיקום|Contact card|כרטיס איש קשר)/i;
+  var SYSV = /(\b(added|removed|left|joined|changed|created|deleted|pinned|unpinned|security code|was added|Meta AI|admin|invite link|turned on|turned off|disappearing)\b|מנהל|הודעות נעלמות|קישור הזמנה|הוצמד|הצמיד|הצמידה|הוסיף|הוסיפה|הסיר|הסירה|עזב|עזבה|הצטרף|הצטרפה|שינה|שינתה|יצר|יצרה|מחק|מחקה|קוד האבטחה|הוספת|הוסרת|הצטרפת|הצטרפו באמצעות)/i;
+  var YOU = /^(you|אתה|את|אתם|tú|vous|ты|أنت)$/i;
+  var stripMarks = function(s){return s.replace(/[‎‏‪-‮⁦-⁩﻿]/g,"")};
+
+  var lastCanvas = null;
+  var data = null, alias = {}, hidden = {}, youPick = "", noteState = null;
+  function disp(n){return alias[n] || n}
+  function autoHide(d){
+    var h = {};
+    d.users.forEach(function(u){ if(u.sys && u.text + u.media <= 100) h[u.name] = true; });
+    return h;
+  }
+  function pct(n,total){return total ? (n/total*100) : 0}
+  function fmt(n){return n.toLocaleString(LOCALE[lang])}
+
+  function parse(text){
+    var lines = text.split(/\r?\n/);
+    var users = {}, total = 0, first = "", last = "", cur = null, msgs = [];
+    function commit(){
+      if(!cur) return;
+      msgs.push({name:cur.name, d:cur.d, t:cur.t});
+      var u = users[cur.name] || (users[cur.name] = {name:cur.name, text:0, media:0, sys:true});
+      u.sys = u.sys && (SYSV.test(cur.body) || (cur.lrm && !RE_MEDIA.test(cur.body)));
+      if(cur.media) u.media++; else u.text++;
+      total++;
+      cur = null;
+    }
+    for(var i=0;i<lines.length;i++){
+      var rawLine = lines[i], line = stripMarks(rawLine);
+      var m = RE_I.exec(line) || RE_A.exec(line);
+      if(m){
+        commit();
+        var rest = m[3], k = rest.indexOf(": ");
+        if(k > 0){
+          var body = rest.slice(k+2);
+          if(RE_SYS.test(body)) continue;
+          var lrm = rawLine.indexOf(": ‎") !== -1;
+          if(lrm && !RE_MEDIA.test(body) && !RE_KEEP.test(body)) continue;
+          cur = {name: rest.slice(0,k).replace(/^[~\s]+|[~\s]+$/g,""), media: RE_MEDIA.test(body) && body.length < 60, d:m[1], t:m[2], body:body, lrm: lrm};
+          if(!first) first = m[1];
+          last = m[1];
+        }
+      }
+    }
+    commit();
+    var bad = {};
+    Object.keys(users).forEach(function(n){ var u = users[n]; if(u.sys && u.text + u.media <= 100){ bad[n] = true; total -= u.text + u.media; } });
+    msgs = msgs.filter(function(x){return !bad[x.name]});
+    toTimes(msgs);
+    return {users:Object.keys(users).filter(function(n){return !bad[n]}).map(function(n){return users[n]}), total:total, first:first, last:last, msgs:msgs};
+  }
+
+  function toTimes(msgs){
+    var order = "dmy";
+    msgs.forEach(function(x){x.p = x.d.split(/[\/.\-]/); });
+    if(msgs.length && msgs[0].p[0].length === 4) order = "ymd";
+    else if(msgs.some(function(x){return +x.p[0] > 12})) order = "dmy";
+    else if(msgs.some(function(x){return +x.p[1] > 12})) order = "mdy";
+    msgs.forEach(function(x){
+      var a = +x.p[0], b = +x.p[1], c = +x.p[2], y, mo, d;
+      if(order === "ymd"){y=a;mo=b;d=c} else if(order === "mdy"){mo=a;d=b;y=c} else {d=a;mo=b;y=c}
+      if(y < 100) y += 2000;
+      var tm = /(\d+):(\d+)(?::(\d+))?\s?([APap])?/.exec(x.t) || [0,0,0,0];
+      var h = +tm[1], ap = tm[4];
+      if(ap){ if(/p/i.test(ap) && h < 12) h += 12; else if(/a/i.test(ap) && h === 12) h = 0; }
+      x.ts = Date.UTC(y, mo-1, d, h, +tm[2], +(tm[3]||0));
+    });
+  }
+
+  function starters(){
+    var gap = (+$("gap").value) * 3600000, count = {}, prev = null, convs = 0;
+    data.msgs.forEach(function(x){
+      if(isNaN(x.ts) || hidden[x.name]) return;
+      if(prev === null || x.ts - prev > gap){ var k = disp(x.name); count[k] = (count[k]||0) + 1; convs++; }
+      prev = x.ts;
+    });
+    var list = Object.keys(count).map(function(n){return {name:n, n:count[n]}}).sort(function(a,b){return b.n-a.n});
+    return {list:list, total:convs};
+  }
+
+  function rows(){
+    var inc = $("media").checked, m = {};
+    data.users.forEach(function(u){
+      if(hidden[u.name]) return;
+      var k = disp(u.name), o = m[k] || (m[k] = {name:k, text:0, media:0});
+      o.text += u.text; o.media += u.media;
+    });
+    var list = Object.keys(m).map(function(k){var o = m[k]; return {name:o.name, text:o.text, media:o.media, n: inc ? o.text+o.media : o.text}})
+      .filter(function(u){return u.n>0}).sort(function(a,b){return b.n-a.n});
+    var total = list.reduce(function(s,u){return s+u.n},0);
+    return {list:list,total:total};
+  }
+
+  function byCount(a,b){return (b.text+b.media)-(a.text+a.media)}
+
+  function buildNames(){
+    var box = $("nameList"); box.textContent = "";
+    var youU = data.users.filter(function(u){return YOU.test(u.name) && !hidden[u.name]})[0];
+    $("youBox").hidden = !youU;
+    if(youU){
+      var sel = $("youSel"); sel.textContent = "";
+      var o0 = document.createElement("option"); o0.value = ""; o0.textContent = t("pickName"); sel.appendChild(o0);
+      data.users.slice().sort(byCount).forEach(function(u){
+        if(u === youU || hidden[u.name]) return;
+        var o = document.createElement("option"); o.value = u.name; o.textContent = u.name; sel.appendChild(o);
+      });
+      sel.value = youPick;
+      sel.onchange = function(){
+        youPick = sel.value;
+        if(youPick) alias[youU.name] = disp(youPick); else delete alias[youU.name];
+        buildNames(); render();
+      };
+    }
+    data.users.slice().sort(byCount).forEach(function(u,i){
+      var row = document.createElement("div"); row.className = "nrow";
+      var lab = document.createElement("label"); lab.className = "mute"; lab.htmlFor = "nm"+i; lab.textContent = u.name; lab.dir = "auto";
+      var inp = document.createElement("input"); inp.type = "text"; inp.id = "nm"+i; inp.value = disp(u.name); inp.dir = "auto";
+      inp.addEventListener("input", function(){
+        var v = inp.value.trim();
+        if(v && v !== u.name) alias[u.name] = v; else delete alias[u.name];
+        render();
+      });
+      var hl = document.createElement("label"); hl.className = "chk mute";
+      var cb = document.createElement("input"); cb.type = "checkbox"; cb.id = "hd"+i; cb.checked = !!hidden[u.name];
+      cb.addEventListener("change", function(){
+        if(cb.checked) hidden[u.name] = true; else delete hidden[u.name];
+        buildNames(); render();
+      });
+      hl.appendChild(cb); hl.appendChild(document.createTextNode(t("hide")));
+      row.appendChild(lab); row.appendChild(inp); row.appendChild(hl); box.appendChild(row);
+    });
+  }
+
+  function drawRow(ol, rank, u, total, max, subText){
+    var li = document.createElement("li");
+    var nm = document.createElement("span"); nm.className = "name"; nm.dir = "auto"; nm.textContent = rank + ". " + u.name;
+    var nu = document.createElement("span"); nu.className = "num";
+    nu.innerHTML = "<b></b> · <span></span>";
+    nu.firstChild.textContent = fmt(u.n); nu.lastChild.textContent = pct(u.n,total).toFixed(1) + "%";
+    var bar = document.createElement("div"); bar.className = "bar";
+    var fill = document.createElement("i"); fill.style.width = (u.n/max*100) + "%"; bar.appendChild(fill);
+    li.appendChild(nm); li.appendChild(nu); li.appendChild(bar);
+    if(subText){ var s = document.createElement("div"); s.className = "sub"; s.textContent = subText; li.appendChild(s); }
+    ol.appendChild(li);
+  }
+
+  function renderMain(){
+    var r = rows(), max = r.list.length ? r.list[0].n : 1;
+    $("sTotal").textContent = fmt(r.total);
+    $("sUsers").textContent = fmt(r.list.length);
+    $("sAvg").textContent = fmt(r.list.length ? Math.round(r.total/r.list.length) : 0);
+    $("range").textContent = data.first ? t("range", {a:data.first, b:data.last}) : "";
+    var ol = $("list"); ol.textContent = "";
+    r.list.forEach(function(u,i){
+      var sub = ($("media").checked && u.media) ? t("mediaSub", {a:fmt(u.text), b:fmt(u.media)}) : "";
+      drawRow(ol, i+1, u, r.total, max, sub);
+    });
+  }
+
+  function renderStarts(){
+    var r = starters(), max = r.list.length ? r.list[0].n : 1;
+    $("convCount").textContent = t("convs", {n:fmt(r.total)});
+    var ol = $("starts"); ol.textContent = "";
+    r.list.forEach(function(u,i){ drawRow(ol, i+1, u, r.total, max, ""); });
+  }
+
+  function render(){ renderMain(); renderStarts(); }
+
+  function report(){
+    var r = rows();
+    var out = [t("h1"), t("rTotals",{n:r.total,u:r.list.length}), ""];
+    r.list.forEach(function(u,i){out.push((i+1)+". "+u.name+" - "+u.n+" ("+pct(u.n,r.total).toFixed(1)+"%)")});
+    var s = starters();
+    out.push("", t("rStarts",{h:$("gap").value,n:s.total}), "");
+    s.list.forEach(function(u,i){out.push((i+1)+". "+u.name+" - "+u.n+" ("+pct(u.n,s.total).toFixed(1)+"%)")});
+    return out.join("\n");
+  }
+
+  function makeImage(){
+    var r = rows(), s = starters(), rtl = !!RTL[lang];
+    var W = 1080, pad = 48, padTop = 90, rowH = 92, head = 160, secH = 100;
+    var H = padTop + head + r.list.length*rowH + secH + s.list.length*rowH + pad;
+    var c = document.createElement("canvas"); c.width = W; c.height = H;
+    var x = c.getContext("2d"), font = 'system-ui,-apple-system,"Segoe UI",Arial,sans-serif';
+    var S = rtl ? W-pad : pad, E = rtl ? pad : W-pad;
+    x.direction = rtl ? "rtl" : "ltr"; x.textBaseline = "middle";
+    x.fillStyle = "#ffffff"; x.fillRect(0,0,W,H);
+    var y = padTop;
+    x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "bold 58px "+font; x.fillText(t("h1"), S, y+40);
+    x.font = "30px "+font; x.fillStyle = "#5d6d67"; x.fillText(t("iTotals",{n:r.total,u:r.list.length}), S, y+100);
+    y += head;
+    function block(list, total){
+      var max = list.length ? list[0].n : 1;
+      list.forEach(function(u){
+        var nm = u.name.length > 20 ? u.name.slice(0,19)+"…" : u.name;
+        x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "34px "+font; x.fillText(nm, S, y+22);
+        x.textAlign = rtl ? "left" : "right"; x.font = "bold 34px "+font; x.fillText(u.n+" · "+pct(u.n,total).toFixed(1)+"%", E, y+22);
+        x.fillStyle = "#e3ece8"; x.fillRect(pad, y+54, W-2*pad, 14);
+        var w = Math.max(4, (u.n/max)*(W-2*pad));
+        x.fillStyle = "#0b7a62"; x.fillRect(rtl ? W-pad-w : pad, y+54, w, 14);
+        y += rowH;
+      });
+    }
+    block(r.list, r.total);
+    x.textAlign = rtl ? "right" : "left"; x.fillStyle = "#14201c"; x.font = "bold 44px "+font; x.fillText(t("iStarts",{n:s.total}), S, y+50);
+    y += secH;
+    block(s.list, s.total);
+    lastCanvas = c;
+    return c.toDataURL("image/png");
+  }
+
+  function setNote(key, p, isErr){
+    noteState = key ? {key:key, p:p, err:!!isErr} : null;
+    var b = $("msg");
+    b.hidden = !noteState;
+    b.textContent = noteState ? t(key, p) : "";
+    b.className = "banner" + (isErr ? " err" : "");
+  }
+
+  function applyLang(){
+    var rtl = !!RTL[lang];
+    var app = $("app"); app.dir = rtl ? "rtl" : "ltr"; app.lang = lang;
+    $("imgBox").dir = rtl ? "rtl" : "ltr";
+    document.documentElement.lang = lang;
+    $("lang").value = lang;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
+    $("imgOut").alt = t("imgAlt");
+    $("copy").textContent = t("pdf");
+    if(noteState) setNote(noteState.key, noteState.p, noteState.err);
+    if(data){ buildNames(); render(); }
+  }
+
+  async function load(file){
+    try{
+      var text;
+      var isZip = /\.zip$/i.test(file.name) || file.type === "application/zip";
+      if(isZip){
+        if(!window.JSZip) throw new Error("zipFail");
+        var zip = await JSZip.loadAsync(file);
+        var f = Object.keys(zip.files).filter(function(n){return /\.txt$/i.test(n)})[0];
+        if(!f) throw new Error("noTxt");
+        text = await zip.files[f].async("string");
+      } else {
+        text = await file.text();
+      }
+      var d = parse(text);
+      if(!d.total) throw new Error("noMsgs");
+      data = d; alias = {}; youPick = ""; hidden = {}; $("out").style.display = "flex"; buildNames(); render();
+      setNote(null);
+    }catch(e){
+      setNote(L.en[e.message] ? e.message : "readErr", null, true);
+    }
+  }
+
+  $("file").addEventListener("change", function(e){ if(e.target.files[0]) load(e.target.files[0]); });
+  $("media").addEventListener("change", render);
+  $("gap").addEventListener("change", renderStarts);
+  $("lang").addEventListener("change", function(e){
+    lang = e.target.value;
+    try{ localStorage.setItem("mihofer-lang", lang); }catch(_){}
+    applyLang();
+  });
+  var drop = $("drop");
+  ["dragover","dragenter"].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.add("over")})});
+  ["dragleave","drop"].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.remove("over")})});
+  drop.addEventListener("drop", function(e){ var f = e.dataTransfer.files[0]; if(f) load(f); });
+
+  function b64ToBytes(b64){
+    var bin = atob(b64), u = new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) u[i] = bin.charCodeAt(i);
+    return u;
+  }
+  function strBytes(str){
+    var u = new Uint8Array(str.length);
+    for(var i=0;i<str.length;i++) u[i] = str.charCodeAt(i) & 255;
+    return u;
+  }
+  function buildPdf(canvas){
+    var W = canvas.width, H = canvas.height, pw = 595, ph = 842, m = 40, cw = pw - 2*m, scale = cw / W;
+    var sliceH = Math.floor((ph - 2*m) / scale), pages = [];
+    for(var y = 0; y < H; y += sliceH){
+      var h = Math.min(sliceH, H - y), c = document.createElement("canvas");
+      c.width = W; c.height = h;
+      var cx = c.getContext("2d"); cx.fillStyle = "#ffffff"; cx.fillRect(0,0,W,h);
+      cx.drawImage(canvas, 0, y, W, h, 0, 0, W, h);
+      pages.push({bytes: b64ToBytes(c.toDataURL("image/jpeg", 0.92).split(",")[1]), w: W, h: h});
+    }
+    var chunks = [], offsets = [], len = 0;
+    function push(x){ var u = typeof x === "string" ? strBytes(x) : x; chunks.push(u); len += u.length; }
+    function obj(n){ offsets[n] = len; }
+    var n = pages.length;
+    push("%PDF-1.4\n");
+    obj(1); push("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+    var kids = pages.map(function(_,i){return (3+3*i) + " 0 R"}).join(" ");
+    obj(2); push("2 0 obj\n<< /Type /Pages /Kids [" + kids + "] /Count " + n + " >>\nendobj\n");
+    pages.forEach(function(p,i){
+      var pg = 3+3*i, ct = pg+1, im = pg+2, dh = p.h * scale;
+      obj(pg); push(pg + " 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pw + " " + ph + "] /Resources << /XObject << /Im0 " + im + " 0 R >> >> /Contents " + ct + " 0 R >>\nendobj\n");
+      var cs = "q " + cw + " 0 0 " + dh.toFixed(2) + " " + m + " " + (ph - m - dh).toFixed(2) + " cm /Im0 Do Q";
+      obj(ct); push(ct + " 0 obj\n<< /Length " + cs.length + " >>\nstream\n" + cs + "\nendstream\nendobj\n");
+      obj(im); push(im + " 0 obj\n<< /Type /XObject /Subtype /Image /Width " + p.w + " /Height " + p.h + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + p.bytes.length + " >>\nstream\n");
+      push(p.bytes); push("\nendstream\nendobj\n");
+    });
+    var total = 3*n + 3, xref = len;
+    push("xref\n0 " + total + "\n0000000000 65535 f \n");
+    for(var i = 1; i < total; i++) push(("0000000000" + offsets[i]).slice(-10) + " 00000 n \n");
+    push("trailer\n<< /Size " + total + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF");
+    return new Blob(chunks, {type:"application/pdf"});
+  }
+  globalThis.__buildPdf = buildPdf;
+
+  function getDl(){
+    try{ return (window.claude && window.claude.use) ? Promise.resolve(window.claude.use("downloads")).catch(function(){return null}) : Promise.resolve(null); }
+    catch(_){ return Promise.resolve(null); }
+  }
+
+  $("copy").addEventListener("click", function(){
+    makeImage();
+    var blob = buildPdf(lastCanvas), file;
+    try{ file = new File([blob], "WhatsApp Group Report.pdf", {type:"application/pdf"}); }catch(_){ file = null; }
+    function download(){
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "WhatsApp Group Report.pdf";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    getDl().then(function(dl){
+      if(dl){
+        dl.save({filename:"WhatsApp Group Report.pdf", data:blob}).catch(function(e){ if(!e || e.code !== "declined") setNote("pdfNote"); });
+      } else if(file && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file]}).catch(function(e){ if(!e || e.name !== "AbortError") download(); });
+      } else download();
+    });
+  });
+
+  $("img").addEventListener("click", function(){
+    $("imgOut").src = makeImage(); $("shareMsg").hidden = true; $("imgBox").hidden = false; $("imgBox").scrollTop = 0;
+  });
+  $("imgShare").addEventListener("click", function(){
+    function fail(){ var m = $("shareMsg"); m.textContent = t("shareFail"); m.hidden = false; }
+    if(!lastCanvas){ fail(); return; }
+    lastCanvas.toBlob(function(blob){
+      getDl().then(function(dl){
+        if(dl){
+          dl.save({filename:"WhatsApp Group Report.png", data:blob}).catch(function(e){ if(!e || e.code !== "declined") fail(); });
+          return;
+        }
+        if(!navigator.share){ fail(); return; }
+      try{
+        var f = new File([blob], "WhatsApp Group Report.png", {type:"image/png"});
+        if(navigator.canShare && navigator.canShare({files:[f]})){
+          navigator.share({files:[f]}).catch(function(e){ if(!e || e.name !== "AbortError") fail(); });
+        } else fail();
+      }catch(_){ fail(); }
+      });
+    }, "image/png");
+  });
+  $("imgClose").addEventListener("click", function(){ $("imgBox").hidden = true; });
+
+  $("out").style.display = "none";
+  applyLang();
+})();
+</script>
+</body>
+</html>

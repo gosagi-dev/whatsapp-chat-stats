@@ -545,6 +545,8 @@ h3{font-size:1rem;margin:14px 0 4px}
    "que los las por con una para del como pero más sus les des pas pour est une dans qui sur что это как так для его все они был").split(" ").forEach(function(w){ STOP[w] = 1; });
   var WORD; try{ WORD = new RegExp("[\\p{L}\\p{N}_']+", "gu"); }catch(_){ WORD = /[A-Za-z֐-׿0-9_']+/g; }
 
+  var WORD_SKIP = /^\s*(This message was deleted|You deleted this message|הודעה זו נמחקה|מחקת את ההודעה|POLL:|סקר:|location:|מיקום:|Contact card|כרטיס איש קשר|OPTION:|אפשרות:)/i;
+  var URL_RE = /(?:https?:\/\/|www\.)\S+|\b[\w.-]+\.(?:com|net|org|io|co|il|me|app|dev|ly|be|ru|fr|es|ai|info|xyz)\b\S*/gi;
   function extraData(){
     var V = getV(), i, out = {hours:null, peak:0, med:[], media:[], words:[]};
     if(V.length){
@@ -568,8 +570,8 @@ h3{font-size:1rem;margin:14px 0 4px}
     if(!(wordCache.data === data && wordCache.key === key)){
       var cnt = Object.create(null);
       V.forEach(function(x){
-        if(x.media || !x.body) return;
-        var w = x.body.toLowerCase().match(WORD); if(!w) return;
+        if(x.media || !x.body || WORD_SKIP.test(x.body) || RE_SYS.test(x.body)) return;
+        var w = x.body.replace(/<[^>]*>/g, " ").replace(URL_RE, " ").toLowerCase().match(WORD); if(!w) return;
         w.forEach(function(s){
           if(s.length < 3 || STOP[s] || /^\d+$/.test(s) || s.indexOf("http") === 0) return;
           cnt[s] = (cnt[s] || 0) + 1;
